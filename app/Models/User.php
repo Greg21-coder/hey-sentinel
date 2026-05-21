@@ -62,6 +62,11 @@ class User extends Authenticatable
         return $this->hasMany(Account::class, 'owner_user_id');
     }
 
+    public function sentInvitations(): HasMany
+    {
+        return $this->hasMany(AccountInvitation::class, 'invited_by');
+    }
+
     public function roleIn(Account $account): ?UserRole
     {
         $pivot = $this->accounts()->where('accounts.id', $account->id)->first()?->pivot;
