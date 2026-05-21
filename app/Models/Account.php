@@ -80,6 +80,11 @@ class Account extends Model
         return $this->hasMany(AccountInvitation::class);
     }
 
+    public function featureUsage(): HasMany
+    {
+        return $this->hasMany(FeatureUsageLog::class);
+    }
+
     public function isOnTrial(): bool
     {
         return $this->status === AccountStatus::Trial
