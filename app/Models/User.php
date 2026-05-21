@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -44,5 +47,25 @@ class User extends Authenticatable
                 $user->uuid = (string) Str::uuid();
             }
         });
+    }
+
+    public function accounts(): BelongsToMany
+    {
+        return $this->belongsToMany(Account::class)
+            ->using(AccountUser::class)
+            ->withPivot(['id', 'role', 'invited_by', 'invitation_accepted_at'])
+            ->withTimestamps();
+    }
+
+    public function ownedAccounts(): HasMany
+    {
+        return $this->hasMany(Account::class, 'owner_user_id');
+    }
+
+    public function roleIn(Account $account): ?UserRole
+    {
+        $pivot = $this->accounts()->where('accounts.id', $account->id)->first()?->pivot;
+
+        return $pivot?->role;
     }
 }

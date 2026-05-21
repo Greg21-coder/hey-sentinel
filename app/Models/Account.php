@@ -8,6 +8,7 @@ use App\Enums\FeatureValueType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -63,6 +64,14 @@ class Account extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_user_id');
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->using(AccountUser::class)
+            ->withPivot(['id', 'role', 'invited_by', 'invitation_accepted_at'])
+            ->withTimestamps();
     }
 
     public function isOnTrial(): bool
