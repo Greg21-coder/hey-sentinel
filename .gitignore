@@ -17,3 +17,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Internal/strategic documentation — not for the repo
+/architecture
+/docs/superpowers
