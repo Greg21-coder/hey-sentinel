@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             DemoAccountSeeder::class,
             CoreDataDemoSeeder::class,
+            AiPainPointVocabularySeeder::class,
         ]);
     }
 }

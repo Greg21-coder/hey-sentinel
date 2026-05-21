@@ -108,6 +108,15 @@ services:
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
         networks:
             - sail
+    ollama:
+        image: 'ollama/ollama:latest'
+        ports:
+            - '${FORWARD_OLLAMA_PORT:-11434}:11434'
+        volumes:
+            - 'sail-ollama:/root/.ollama'
+        networks:
+            - sail
+        restart: unless-stopped
 networks:
     sail:
         driver: bridge
@@ -115,4 +124,6 @@ volumes:
     sail-mysql:
         driver: local
     sail-redis:
+        driver: local
+    sail-ollama:
         driver: local
