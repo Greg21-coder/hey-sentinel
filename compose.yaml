@@ -27,6 +27,40 @@ services:
             - mysql
             - redis
             - mailpit
+    scheduler:
+        image: 'sail-8.5/app'
+        environment:
+            WWWUSER: '${WWWUSER:-1000}'
+            LARAVEL_SAIL: 1
+            SUPERVISOR_PHP_USER: 'root'
+        volumes:
+            - '.:/var/www/html'
+            - './docker/php/99-heysentinel.ini:/etc/php/8.5/cli/conf.d/99-heysentinel.ini:ro'
+        command: ['php', '/var/www/html/artisan', 'schedule:work']
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
+            - mysql
+            - redis
+        restart: unless-stopped
+    horizon:
+        image: 'sail-8.5/app'
+        environment:
+            WWWUSER: '${WWWUSER:-1000}'
+            LARAVEL_SAIL: 1
+            SUPERVISOR_PHP_USER: 'root'
+        volumes:
+            - '.:/var/www/html'
+            - './docker/php/99-heysentinel.ini:/etc/php/8.5/cli/conf.d/99-heysentinel.ini:ro'
+        command: ['php', '/var/www/html/artisan', 'horizon']
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
+            - mysql
+            - redis
+        restart: unless-stopped
     mysql:
         image: 'mysql:8.4'
         ports:

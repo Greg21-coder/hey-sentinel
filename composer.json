@@ -10,7 +10,8 @@
         "laravel/framework": "^11.0",
         "laravel/horizon": "^5.47",
         "laravel/tinker": "^2.9",
-        "predis/predis": "^3.4"
+        "predis/predis": "^3.4",
+        "symfony/dom-crawler": "^8.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -18,9 +19,9 @@
         "laravel/sail": "^1.60",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
-        "pestphp/pest": "^2.36",
-        "pestphp/pest-plugin-laravel": "^2.4",
-        "phpunit/phpunit": "^10.5",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "phpunit/phpunit": "^11.5",
         "spatie/laravel-ignition": "^2.4"
     },
     "autoload": {
