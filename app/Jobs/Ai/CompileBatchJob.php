@@ -7,6 +7,7 @@ use App\Enums\AiStatus;
 use App\Models\AiBatch;
 use App\Models\StoreReview;
 use App\Support\Ai\PainPointExtractionPrompt;
+use App\Jobs\Ai\IngestBatchResultsJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -61,8 +62,8 @@ class CompileBatchJob implements ShouldQueue
 
         $batchId = $client->submitBatch($requests, $promptVersion);
 
-        DB::transaction(function () use ($reviews, $batchId, $provider, $promptVersion, $requests) {
-            AiBatch::create([
+        $aiBatch = DB::transaction(function () use ($reviews, $batchId, $provider, $promptVersion, $requests) {
+            $batch = AiBatch::create([
                 'provider' => $provider,
                 'batch_id' => $batchId,
                 'status' => 'submitted',
@@ -73,11 +74,21 @@ class CompileBatchJob implements ShouldQueue
 
             StoreReview::whereIn('id', $reviews->pluck('id'))
                 ->update(['ai_status' => AiStatus::Batched->value]);
+
+            return $batch;
         });
 
         Log::info('CompileBatchJob success', [
             'batch_id' => $batchId,
             'count' => count($requests),
         ]);
+
+        // Sync providers (Ollama) report completed immediately. Skip the
+        // PollBatches cron and dispatch ingest now so iteration is fast.
+        // Async providers (Anthropic) report 'submitted' / 'in_progress';
+        // the cron handles those.
+        if ($client->pollBatch($batchId) === 'completed') {
+            IngestBatchResultsJob::dispatch($aiBatch->id);
+        }
     }
 }

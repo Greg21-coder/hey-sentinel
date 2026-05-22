@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\StoreReviews\Tables;
 
 use App\Enums\AiStatus;
+use App\Jobs\Ai\CompileBatchJob;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
@@ -151,8 +152,8 @@ class StoreReviewsTable
                     ->icon(Heroicon::OutlinedArrowPath)
                     ->color('info')
                     ->requiresConfirmation()
-                    ->modalHeading('Mark for AI re-processing?')
-                    ->modalDescription('Sets ai_status back to Pending. The next AI batch run will pick it up.')
+                    ->modalHeading('Re-process this review now?')
+                    ->modalDescription('Resets ai_status and dispatches a CompileBatchJob immediately. Result should appear in 1-2 minutes.')
                     ->visible(fn ($record) => in_array($record->ai_status, [AiStatus::Processed, AiStatus::Error], true))
                     ->action(function ($record) {
                         $record->update([
@@ -160,8 +161,10 @@ class StoreReviewsTable
                             'ai_sentiment' => null,
                             'ai_processed_at' => null,
                         ]);
+                        CompileBatchJob::dispatch();
                         Notification::make()
-                            ->title('Review queued for re-processing')
+                            ->title('Review queued and CompileBatch dispatched')
+                            ->body('Result expected in 1-2 minutes; refresh to see it.')
                             ->success()
                             ->send();
                     }),
