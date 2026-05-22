@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -79,5 +80,25 @@ class User extends Authenticatable implements FilamentUser
         $pivot = $this->accounts()->where('accounts.id', $account->id)->first()?->pivot;
 
         return $pivot?->role;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->accounts()
+            ->where('accounts.slug', 'heysentinel-internal')
+            ->exists();
+    }
+
+    protected function currentAccount(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $owned = $this->ownedAccounts()->first();
+                if ($owned !== null) {
+                    return $owned;
+                }
+                return $this->accounts()->first();
+            }
+        )->shouldCache();
     }
 }
