@@ -67,6 +67,7 @@ class ReviewsRelationManager extends RelationManager
                     ->label('Pain points')
                     ->badge()
                     ->color('info')
+                    ->listWithLineBreaks()
                     ->limitList(3)
                     ->expandableLimitedList()
                     ->placeholder('—')

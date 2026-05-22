@@ -69,6 +69,7 @@ class StoreReviewsTable
                     ->label('Pain points')
                     ->badge()
                     ->color('info')
+                    ->listWithLineBreaks()
                     ->limitList(3)
                     ->expandableLimitedList()
                     ->placeholder('—')
