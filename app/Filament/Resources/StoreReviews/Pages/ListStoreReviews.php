@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\StoreReviews\Pages;
 
 use App\Filament\Resources\StoreReviews\StoreReviewResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListStoreReviews extends ListRecords
@@ -12,8 +11,6 @@ class ListStoreReviews extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [];
     }
 }

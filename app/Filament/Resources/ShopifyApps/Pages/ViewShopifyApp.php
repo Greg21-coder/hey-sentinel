@@ -3,10 +3,9 @@
 namespace App\Filament\Resources\ShopifyApps\Pages;
 
 use App\Filament\Resources\ShopifyApps\ShopifyAppResource;
-use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditShopifyApp extends EditRecord
+class ViewShopifyApp extends ViewRecord
 {
     protected static string $resource = ShopifyAppResource::class;
 
@@ -18,12 +17,5 @@ class EditShopifyApp extends EditRecord
     public function getContentTabLabel(): ?string
     {
         return 'Detalles';
-    }
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            DeleteAction::make(),
-        ];
     }
 }

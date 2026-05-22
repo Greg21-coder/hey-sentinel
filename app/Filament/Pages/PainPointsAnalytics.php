@@ -19,7 +19,9 @@ class PainPointsAnalytics extends Page
 
     protected static ?string $navigationLabel = 'Pain Points';
 
-    protected static ?int $navigationSort = -1;
+    protected static \UnitEnum|string|null $navigationGroup = 'IA';
+
+    protected static ?int $navigationSort = 1;
 
     public function getWidgets(): array
     {

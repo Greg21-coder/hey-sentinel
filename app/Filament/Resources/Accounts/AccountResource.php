@@ -23,7 +23,9 @@ class AccountResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
 
-    protected static ?int $navigationSort = 20;
+    protected static \UnitEnum|string|null $navigationGroup = 'Administración';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

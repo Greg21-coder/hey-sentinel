@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\StoreReviews\Tables;
 
 use App\Enums\AiStatus;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -146,12 +146,26 @@ class StoreReviewsTable
             ])
             ->filtersFormColumns(2)
             ->recordActions([
-                EditAction::make(),
+                Action::make('reprocess_ai')
+                    ->label('Re-process AI')
+                    ->icon(Heroicon::OutlinedArrowPath)
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('Mark for AI re-processing?')
+                    ->modalDescription('Sets ai_status back to Pending. The next AI batch run will pick it up.')
+                    ->visible(fn ($record) => in_array($record->ai_status, [AiStatus::Processed, AiStatus::Error], true))
+                    ->action(function ($record) {
+                        $record->update([
+                            'ai_status' => AiStatus::Pending->value,
+                            'ai_sentiment' => null,
+                            'ai_processed_at' => null,
+                        ]);
+                        Notification::make()
+                            ->title('Review queued for re-processing')
+                            ->success()
+                            ->send();
+                    }),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->toolbarActions([]);
     }
 }

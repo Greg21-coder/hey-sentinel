@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\ShopifyApps\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use App\Jobs\Scraping\ScrapeAppPageJob;
+use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -63,12 +65,22 @@ class ShopifyAppsTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
+                ViewAction::make(),
+                Action::make('scrape_now')
+                    ->label('Scrape now')
+                    ->icon(Heroicon::OutlinedArrowPath)
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Re-scrape this app?')
+                    ->modalDescription('A scrape job will be queued for the app page on the Shopify App Store. This does not re-scrape reviews.')
+                    ->action(function ($record) {
+                        ScrapeAppPageJob::dispatch($record->shopify_app_handle);
+                        Notification::make()
+                            ->title("Scrape queued for {$record->name}")
+                            ->success()
+                            ->send();
+                    }),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->toolbarActions([]);
     }
 }

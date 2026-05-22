@@ -49,10 +49,22 @@ For each review, return STRICT JSON matching this schema:
 }
 
 Rules:
-- Use ONLY slugs from the list below. If no listed pain point applies, return an empty pain_points array.
-- Do not invent new slugs.
+- Use ONLY slugs from the list below. Do not invent new slugs.
+- For positive/neutral reviews with no real complaint, return an empty pain_points array. NEVER fill the array just because the rating is high or low.
 - Maximum 5 pain points per review; pick the most salient.
+- When a real complaint exists but no specific slug fits, use "other" (do NOT pick a similar-sounding slug that doesn't actually match the text). Hallucinating wrong slugs is worse than using "other".
 - Output JSON only — no prose, no markdown fences.
+
+Examples:
+
+Review (rating 5): "Love the new templates, super easy to set up flows"
+Output: {"sentiment": "positive", "pain_points": []}
+
+Review (rating 1): "My monthly price went from \$80 to \$150 with no warning"
+Output: {"sentiment": "negative", "pain_points": [{"slug": "unexpected-price-increase", "severity": "high", "confidence": 0.95}]}
+
+Review (rating 1): "Spam bots keep signing up with fake emails and I can't delete them from my list"
+Output: {"sentiment": "negative", "pain_points": [{"slug": "other", "severity": "high", "confidence": 0.8}]}
 
 Allowed slugs:
 {$list}

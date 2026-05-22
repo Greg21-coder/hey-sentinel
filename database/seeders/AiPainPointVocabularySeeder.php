@@ -41,6 +41,11 @@ class AiPainPointVocabularySeeder extends Seeder
             ['poor-integrations', 'Poor third-party integrations', 'features'],
             ['weak-analytics', 'Weak analytics / reporting', 'features'],
             ['billing-issues', 'Billing or subscription issues', 'pricing'],
+
+            // Escape valve: lets the LLM flag a real complaint that doesn't
+            // map to any specific slug, instead of hallucinating a wrong one.
+            // Used together with few-shot examples in PainPointExtractionPrompt.
+            ['other', 'Other pain (not in vocabulary)', 'other'],
         ];
 
         foreach ($vocabulary as [$slug, $name, $category]) {
