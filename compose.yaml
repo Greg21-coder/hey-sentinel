@@ -32,7 +32,7 @@ services:
         environment:
             WWWUSER: '${WWWUSER:-1000}'
             LARAVEL_SAIL: 1
-            SUPERVISOR_PHP_USER: 'root'
+            SUPERVISOR_PHP_USER: 'sail'
         volumes:
             - '.:/var/www/html'
             - './docker/php/99-heysentinel.ini:/etc/php/8.5/cli/conf.d/99-heysentinel.ini:ro'
@@ -49,7 +49,7 @@ services:
         environment:
             WWWUSER: '${WWWUSER:-1000}'
             LARAVEL_SAIL: 1
-            SUPERVISOR_PHP_USER: 'root'
+            SUPERVISOR_PHP_USER: 'sail'
         volumes:
             - '.:/var/www/html'
             - './docker/php/99-heysentinel.ini:/etc/php/8.5/cli/conf.d/99-heysentinel.ini:ro'

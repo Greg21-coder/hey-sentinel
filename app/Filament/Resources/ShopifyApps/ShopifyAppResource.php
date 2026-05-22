@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ShopifyApps;
 use App\Filament\Resources\ShopifyApps\Pages\CreateShopifyApp;
 use App\Filament\Resources\ShopifyApps\Pages\EditShopifyApp;
 use App\Filament\Resources\ShopifyApps\Pages\ListShopifyApps;
+use App\Filament\Resources\ShopifyApps\RelationManagers\ReviewsRelationManager;
 use App\Filament\Resources\ShopifyApps\Schemas\ShopifyAppForm;
 use App\Filament\Resources\ShopifyApps\Tables\ShopifyAppsTable;
 use App\Models\ShopifyApp;
@@ -33,7 +34,7 @@ class ShopifyAppResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ReviewsRelationManager::class,
         ];
     }
 
