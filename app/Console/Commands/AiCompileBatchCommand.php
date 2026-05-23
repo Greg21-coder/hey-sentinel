@@ -7,15 +7,19 @@ use Illuminate\Console\Command;
 
 class AiCompileBatchCommand extends Command
 {
-    protected $signature = 'app:ai:compile-batch';
+    protected $signature = 'app:ai:compile-batch {--count=1 : Number of batches to dispatch}';
 
-    protected $description = 'Compile a batch of pending reviews and submit to the LLM provider.';
+    protected $description = 'Compile one or more batches of pending reviews and submit to the LLM provider.';
 
     public function handle(): int
     {
-        CompileBatchJob::dispatch();
+        $count = max(1, (int) $this->option('count'));
 
-        $this->info('CompileBatchJob dispatched.');
+        for ($i = 0; $i < $count; $i++) {
+            CompileBatchJob::dispatch();
+        }
+
+        $this->info("Dispatched {$count} CompileBatchJob(s).");
 
         return self::SUCCESS;
     }
