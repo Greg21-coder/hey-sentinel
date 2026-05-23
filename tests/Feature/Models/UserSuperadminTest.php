@@ -61,3 +61,25 @@ it('currentAccount returns null for users with no accounts', function () {
     $user = User::factory()->create();
     expect($user->currentAccount)->toBeNull();
 });
+
+it('non-superadmin cannot access the admin panel', function () {
+    $user = User::factory()->create();
+    $panel = \Filament\Facades\Filament::getPanel('admin');
+
+    expect($user->canAccessPanel($panel))->toBeFalse();
+});
+
+it('superadmin can access the admin panel', function () {
+    Account::factory()->create(['slug' => 'heysentinel-internal']);
+    $user = User::factory()->superadmin()->create();
+    $panel = \Filament\Facades\Filament::getPanel('admin');
+
+    expect($user->canAccessPanel($panel))->toBeTrue();
+});
+
+it('any user can access the customer panel', function () {
+    $user = User::factory()->create();
+    $panel = \Filament\Facades\Filament::getPanel('customer');
+
+    expect($user->canAccessPanel($panel))->toBeTrue();
+})->skip('panel not registered yet — Task 5');

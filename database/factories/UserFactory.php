@@ -43,4 +43,24 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function superadmin(): static
+    {
+        return $this->afterCreating(function (\App\Models\User $user) {
+            $internal = \App\Models\Account::firstOrCreate(
+                ['slug' => 'heysentinel-internal'],
+                \App\Models\Account::factory()->raw([
+                    'slug' => 'heysentinel-internal',
+                    'name' => 'HeySentinel Internal',
+                ])
+            );
+            \App\Models\AccountUser::updateOrCreate(
+                ['account_id' => $internal->id, 'user_id' => $user->id],
+                [
+                    'role' => \App\Enums\UserRole::Owner->value,
+                    'invitation_accepted_at' => now(),
+                ]
+            );
+        });
+    }
 }

@@ -3,7 +3,8 @@
 use App\Models\User;
 
 beforeEach(function () {
-    $this->user = User::factory()->create();
+    $this->seed(\Database\Seeders\PlanSeeder::class);
+    $this->user = User::factory()->superadmin()->create();
     $this->actingAs($this->user);
 });
 
