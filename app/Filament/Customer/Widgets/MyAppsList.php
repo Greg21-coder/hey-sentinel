@@ -2,8 +2,8 @@
 
 namespace App\Filament\Customer\Widgets;
 
-use App\Models\AccountFollowedApp;
 use App\Models\ShopifyApp;
+use Illuminate\Support\Facades\Auth;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -53,11 +53,17 @@ class MyAppsList extends BaseWidget
 
     protected function query(): Builder
     {
-        $followedIds = AccountFollowedApp::query()->pluck('shopify_app_id');
+        $accountId = Auth::user()?->currentAccount?->id ?? 0;
 
         return ShopifyApp::query()
-            ->whereIn('shopify_apps.id', $followedIds)
-            ->join('account_followed_apps', 'account_followed_apps.shopify_app_id', '=', 'shopify_apps.id')
-            ->select('shopify_apps.*', 'account_followed_apps.kind as pivot_kind', 'account_followed_apps.followed_at as pivot_followed_at');
+            ->join('account_followed_apps', function ($join) use ($accountId) {
+                $join->on('account_followed_apps.shopify_app_id', '=', 'shopify_apps.id')
+                    ->where('account_followed_apps.account_id', $accountId);
+            })
+            ->select(
+                'shopify_apps.*',
+                'account_followed_apps.kind as pivot_kind',
+                'account_followed_apps.followed_at as pivot_followed_at',
+            );
     }
 }
