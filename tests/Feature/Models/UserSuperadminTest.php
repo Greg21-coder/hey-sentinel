@@ -81,4 +81,4 @@ it('any user can access the customer panel', function () {
     $panel = \Filament\Facades\Filament::getPanel('customer');
 
     expect($user->canAccessPanel($panel))->toBeTrue();
-})->skip('panel not registered yet — Task 5');
+});
