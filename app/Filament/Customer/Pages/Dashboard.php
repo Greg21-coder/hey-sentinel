@@ -4,6 +4,8 @@ namespace App\Filament\Customer\Pages;
 
 use App\Filament\Customer\Widgets\MyAppsList;
 use App\Filament\Customer\Widgets\MyAppsStatsOverview;
+use App\Filament\Customer\Widgets\PainPointsRadar;
+use App\Filament\Customer\Widgets\SentimentTimelineChart;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
@@ -24,6 +26,8 @@ class Dashboard extends Page
     {
         return [
             MyAppsStatsOverview::class,
+            SentimentTimelineChart::class,
+            PainPointsRadar::class,
             MyAppsList::class,
         ];
     }
