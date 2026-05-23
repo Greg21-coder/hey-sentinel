@@ -49,10 +49,15 @@ class UserFactory extends Factory
         return $this->afterCreating(function (\App\Models\User $user) {
             $internal = \App\Models\Account::firstOrCreate(
                 ['slug' => 'heysentinel-internal'],
-                \App\Models\Account::factory()->raw([
-                    'slug' => 'heysentinel-internal',
-                    'name' => 'HeySentinel Internal',
-                ])
+                [
+                    'uuid'          => (string) \Illuminate\Support\Str::uuid(),
+                    'name'          => 'HeySentinel Internal',
+                    'slug'          => 'heysentinel-internal',
+                    'status'        => \App\Enums\AccountStatus::Active->value,
+                    'billing_cycle' => \App\Enums\BillingCycle::Monthly->value,
+                    'plan_id'       => \App\Models\Plan::first()?->id
+                                       ?? \App\Models\Plan::factory()->create()->id,
+                ]
             );
             \App\Models\AccountUser::updateOrCreate(
                 ['account_id' => $internal->id, 'user_id' => $user->id],

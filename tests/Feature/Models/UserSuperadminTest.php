@@ -70,7 +70,6 @@ it('non-superadmin cannot access the admin panel', function () {
 });
 
 it('superadmin can access the admin panel', function () {
-    Account::factory()->create(['slug' => 'heysentinel-internal']);
     $user = User::factory()->superadmin()->create();
     $panel = \Filament\Facades\Filament::getPanel('admin');
 
