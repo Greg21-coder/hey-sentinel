@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Enums\FollowedAppKind;
 use App\Models\Account;
 use App\Models\AccountFollowedApp;
-use App\Models\Concerns\BelongsToAccount;
 use App\Models\ShopifyApp;
 use Illuminate\Database\Seeder;
 
@@ -34,7 +33,7 @@ class CustomerDemoSeeder extends Seeder
                 ->get();
         }
 
-        BelongsToAccount::disable();
+        AccountFollowedApp::disable();
 
         foreach ($apps as $index => $app) {
             AccountFollowedApp::updateOrCreate(
@@ -49,7 +48,7 @@ class CustomerDemoSeeder extends Seeder
             );
         }
 
-        BelongsToAccount::enable();
+        AccountFollowedApp::enable();
 
         $this->command?->info("CustomerDemoSeeder: attached {$apps->count()} apps to acme-corp.");
     }
