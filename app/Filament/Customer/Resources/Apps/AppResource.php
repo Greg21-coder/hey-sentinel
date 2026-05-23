@@ -3,6 +3,8 @@
 namespace App\Filament\Customer\Resources\Apps;
 
 use App\Filament\Customer\Resources\Apps\Pages\ListApps;
+use App\Filament\Customer\Resources\Apps\Pages\ViewApp;
+use App\Filament\Customer\Resources\Apps\RelationManagers\ReviewsRelationManager;
 use App\Filament\Customer\Resources\Apps\Tables\AppsTable;
 use App\Models\ShopifyApp;
 use BackedEnum;
@@ -47,13 +49,16 @@ class AppResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ReviewsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ListApps::route('/'),
+            'view' => ViewApp::route('/{record}'),
         ];
     }
 }
