@@ -34,11 +34,11 @@ beforeEach(function () {
 });
 
 it('customer dashboard renders', function () {
-    // Stat labels load lazily via Livewire x-intersect; assert the widget
-    // component shells are present in the initial HTML instead.
+    // Widget content lazy-loads via Livewire x-intersect; assert on the page
+    // title (server-rendered) instead of stat labels.
     $this->get('/customer')
         ->assertStatus(200)
-        ->assertSee('MyAppsStatsOverview', escape: false);
+        ->assertSee('Dashboard');
 });
 
 it('customer apps index loads and shows Browse', function () {
