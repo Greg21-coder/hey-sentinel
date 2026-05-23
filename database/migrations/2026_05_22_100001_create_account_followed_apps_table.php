@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->foreignId('shopify_app_id')->constrained()->cascadeOnDelete();
-            $table->enum('kind', ['mine', 'competitor'])->default('competitor');
+            $table->string('kind', 20)->default('competitor');
             $table->timestamp('followed_at');
             $table->text('notes')->nullable();
             $table->timestamps();

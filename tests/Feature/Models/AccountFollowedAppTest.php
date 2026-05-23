@@ -54,7 +54,6 @@ it('Account hasMany followedApps and apps via belongsToMany', function () {
     $account = Account::factory()->create();
     $apps = ShopifyApp::factory()->count(3)->create();
 
-    BelongsToAccount::disable();
     foreach ($apps as $app) {
         AccountFollowedApp::create([
             'account_id' => $account->id,
@@ -63,7 +62,6 @@ it('Account hasMany followedApps and apps via belongsToMany', function () {
             'followed_at' => now(),
         ]);
     }
-    BelongsToAccount::enable();
 
     expect($account->fresh()->followedApps)->toHaveCount(3);
     expect($account->fresh()->apps)->toHaveCount(3);
