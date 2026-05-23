@@ -80,6 +80,18 @@ class Account extends Model
         return $this->hasMany(AccountInvitation::class);
     }
 
+    public function followedApps(): HasMany
+    {
+        return $this->hasMany(AccountFollowedApp::class);
+    }
+
+    public function apps(): BelongsToMany
+    {
+        return $this->belongsToMany(ShopifyApp::class, 'account_followed_apps')
+            ->withPivot(['kind', 'followed_at', 'notes'])
+            ->withTimestamps();
+    }
+
     public function featureUsage(): HasMany
     {
         return $this->hasMany(FeatureUsageLog::class);

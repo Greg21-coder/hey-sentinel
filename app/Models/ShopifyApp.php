@@ -65,6 +65,13 @@ class ShopifyApp extends Model
         return $this->belongsToMany(AiTag::class, 'app_tag', 'app_id', 'tag_id')->withPivot('mention_count');
     }
 
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(Account::class, 'account_followed_apps')
+            ->withPivot(['kind', 'followed_at', 'notes'])
+            ->withTimestamps();
+    }
+
     public function scopePendingScraping(Builder $query): Builder
     {
         return $query->where('scraping_status', ScrapingStatus::Pending->value);
