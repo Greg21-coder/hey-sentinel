@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ScrapingStatus;
 use App\Models\ShopifyApp;
 use App\Services\Ai\AppSummaryService;
 use Illuminate\Console\Command;
@@ -18,7 +19,7 @@ class AiGenerateSummariesCommand extends Command
 
     public function handle(AppSummaryService $service): int
     {
-        $query = ShopifyApp::query()->where('scraping_status', 'scraped');
+        $query = ShopifyApp::query()->where('scraping_status', ScrapingStatus::Scraped->value);
 
         if ($id = $this->option('app')) {
             $query->where('id', $id);

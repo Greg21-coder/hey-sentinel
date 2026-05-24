@@ -45,11 +45,9 @@ class ViewApp extends ViewRecord
         return 1;
     }
 
-    public function getWidgetData(): array
-    {
-        return [
-            AppSummaryWidget::class => ['record' => $this->record],
-            AppPainPointsWidget::class => ['record' => $this->record],
-        ];
-    }
+    // No getWidgetData() override: the parent InteractsWithRecord trait
+    // already returns ['record' => $this->getRecord()], which Filament
+    // spreads as a public Livewire prop into each registered widget.
+    // A class-keyed shape (introduced in M1) was silently wrong — both
+    // header and footer widgets received $record=null and rendered empty.
 }
