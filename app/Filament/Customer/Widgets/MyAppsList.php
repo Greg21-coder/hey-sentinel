@@ -3,11 +3,12 @@
 namespace App\Filament\Customer\Widgets;
 
 use App\Models\ShopifyApp;
-use Illuminate\Support\Facades\Auth;
+use Filament\Actions\Action;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class MyAppsList extends BaseWidget
 {
@@ -36,6 +37,21 @@ class MyAppsList extends BaseWidget
                     ->label('Reviews')
                     ->numeric()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('ai_summary')
+                    ->label('AI Summary')
+                    ->wrap()
+                    ->limit(90)
+                    ->placeholder('—')
+                    ->tooltip(fn (ShopifyApp $record): ?string => $record->ai_summary)
+                    ->action(
+                        Action::make('viewAiSummary')
+                            ->modalHeading(fn (ShopifyApp $record): string => 'AI Summary — '.$record->name)
+                            ->modalContent(fn (ShopifyApp $record) => view('filament.modals.ai-summary', ['record' => $record]))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Close')
+                            ->visible(fn (ShopifyApp $record): bool => filled($record->ai_summary)),
+                    ),
 
                 Tables\Columns\TextColumn::make('pivot_kind')
                     ->label('Kind')

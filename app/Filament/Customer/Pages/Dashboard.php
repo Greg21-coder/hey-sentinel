@@ -2,7 +2,6 @@
 
 namespace App\Filament\Customer\Pages;
 
-use App\Filament\Customer\Widgets\FollowedAppSummaries;
 use App\Filament\Customer\Widgets\MyAppsList;
 use App\Filament\Customer\Widgets\MyAppsStatsOverview;
 use App\Filament\Customer\Widgets\PainPointsRadar;
@@ -27,7 +26,6 @@ class Dashboard extends Page
     {
         return [
             MyAppsStatsOverview::class,
-            FollowedAppSummaries::class,
             SentimentTimelineChart::class,
             PainPointsRadar::class,
             MyAppsList::class,
