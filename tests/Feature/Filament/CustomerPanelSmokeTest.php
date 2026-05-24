@@ -21,14 +21,19 @@ beforeEach(function () {
 
     $this->shopifyApp = ShopifyApp::factory()->create();
 
+    // try/finally so a create() failure does not leak the disabled trait
+    // state into the rest of the Pest worker process.
     AccountFollowedApp::disable();
-    AccountFollowedApp::create([
-        'account_id' => $this->account->id,
-        'shopify_app_id' => $this->shopifyApp->id,
-        'kind' => FollowedAppKind::Mine->value,
-        'followed_at' => now(),
-    ]);
-    AccountFollowedApp::enable();
+    try {
+        AccountFollowedApp::create([
+            'account_id' => $this->account->id,
+            'shopify_app_id' => $this->shopifyApp->id,
+            'kind' => FollowedAppKind::Mine->value,
+            'followed_at' => now(),
+        ]);
+    } finally {
+        AccountFollowedApp::enable();
+    }
 
     $this->actingAs($this->user);
 });
