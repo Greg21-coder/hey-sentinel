@@ -50,6 +50,22 @@ it('compiles a batch from pending reviews and flips their status to batched', fu
     expect($statuses->every(fn ($s) => $s === AiStatus::Batched))->toBeTrue();
 });
 
+it('CompileBatchJob declares unique-dispatch protection to prevent the cron/manual race', function () {
+    // Without ShouldBeUnique, two parallel dispatches (e.g. hourly cron + the
+    // Filament "Reprocess AI" button) BOTH SELECT pending reviews before either
+    // commits the status flip, submitting overlapping batches to the LLM provider
+    // and double-billing. Observed in production data: pairs of ai_batches rows
+    // submitted seconds apart with identical completion timestamps.
+    $job = new CompileBatchJob();
+
+    expect($job)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldBeUnique::class);
+    expect($job->uniqueId())->toBe('compile-batch');
+    // uniqueFor must match $timeout so the lock outlives the worst-case sync
+    // Ollama batch (otherwise a long-running job releases its lock and a
+    // duplicate dispatch can race in).
+    expect($job->uniqueFor)->toBe($job->timeout);
+});
+
 it('polls open batches, marks completed, and dispatches ingest', function () {
     $batch = AiBatch::create([
         'provider' => 'anthropic',

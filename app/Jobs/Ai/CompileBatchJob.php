@@ -9,6 +9,7 @@ use App\Models\StoreReview;
 use App\Support\Ai\PainPointExtractionPrompt;
 use App\Jobs\Ai\IngestBatchResultsJob;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class CompileBatchJob implements ShouldQueue
+class CompileBatchJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -25,6 +26,18 @@ class CompileBatchJob implements ShouldQueue
     // Ollama processes the whole batch synchronously inside submitBatch(),
     // so this job can block for several minutes on CPU-only inference.
     public int $timeout = 1800;
+
+    // The cron and the Filament "Reprocess AI" button can fire simultaneously.
+    // Without a uniqueness guard, both jobs SELECT the same pending reviews
+    // before either commits the status flip, submitting overlapping batches
+    // (and double-billing on Anthropic). uniqueFor matches $timeout so the lock
+    // outlives the worst-case sync Ollama run.
+    public int $uniqueFor = 1800;
+
+    public function uniqueId(): string
+    {
+        return 'compile-batch';
+    }
 
     public function handle(BatchLlmClient $client): void
     {
