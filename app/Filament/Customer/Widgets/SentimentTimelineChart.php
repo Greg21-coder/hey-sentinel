@@ -4,7 +4,7 @@ namespace App\Filament\Customer\Widgets;
 
 use App\Models\AccountFollowedApp;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SentimentTimelineChart extends ChartWidget
@@ -41,7 +41,14 @@ class SentimentTimelineChart extends ChartWidget
             default => 12,
         };
 
-        $appIds = AccountFollowedApp::query()->pluck('shopify_app_id');
+        // Explicit account filter — do not rely on the BelongsToAccount global
+        // scope alone. The scope silently skips when currentAccount is null
+        // (e.g., user with no account_user pivot), which would leak data across
+        // tenants. ?? 0 forces an empty result in that edge case.
+        $accountId = Auth::user()?->currentAccount?->id ?? 0;
+        $appIds = AccountFollowedApp::query()
+            ->where('account_id', $accountId)
+            ->pluck('shopify_app_id');
 
         $start = now()->subMonthsNoOverflow($months - 1)->startOfMonth();
 

@@ -74,20 +74,25 @@ it('BelongsToAccount scopes followedApps to the auth user current account', func
     $accountB = Account::factory()->create(['owner_user_id' => $userB->id]);
     $app = ShopifyApp::factory()->create();
 
+    // try/finally so a creation failure does not leak the disabled trait
+    // state into the rest of the Pest worker process.
     BelongsToAccount::disable();
-    AccountFollowedApp::create([
-        'account_id' => $accountA->id,
-        'shopify_app_id' => $app->id,
-        'kind' => FollowedAppKind::Mine->value,
-        'followed_at' => now(),
-    ]);
-    AccountFollowedApp::create([
-        'account_id' => $accountB->id,
-        'shopify_app_id' => $app->id,
-        'kind' => FollowedAppKind::Mine->value,
-        'followed_at' => now(),
-    ]);
-    BelongsToAccount::enable();
+    try {
+        AccountFollowedApp::create([
+            'account_id' => $accountA->id,
+            'shopify_app_id' => $app->id,
+            'kind' => FollowedAppKind::Mine->value,
+            'followed_at' => now(),
+        ]);
+        AccountFollowedApp::create([
+            'account_id' => $accountB->id,
+            'shopify_app_id' => $app->id,
+            'kind' => FollowedAppKind::Mine->value,
+            'followed_at' => now(),
+        ]);
+    } finally {
+        BelongsToAccount::enable();
+    }
 
     $this->actingAs($userA);
     expect(AccountFollowedApp::count())->toBe(1);

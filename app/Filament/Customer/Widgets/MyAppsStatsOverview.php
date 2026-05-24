@@ -5,13 +5,21 @@ namespace App\Filament\Customer\Widgets;
 use App\Models\AccountFollowedApp;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MyAppsStatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
-        $appIds = AccountFollowedApp::query()->pluck('shopify_app_id');
+        // Explicit account filter — do not rely on the BelongsToAccount global
+        // scope alone. The scope silently skips when currentAccount is null
+        // (e.g., user with no account_user pivot), which would leak data across
+        // tenants. ?? 0 forces an empty result in that edge case.
+        $accountId = Auth::user()?->currentAccount?->id ?? 0;
+        $appIds = AccountFollowedApp::query()
+            ->where('account_id', $accountId)
+            ->pluck('shopify_app_id');
 
         if ($appIds->isEmpty()) {
             return [

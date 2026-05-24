@@ -13,10 +13,10 @@ class FakeAppCatalogSeeder extends Seeder
     /**
      * Generates 20 synthetic apps with 10 reviews each across 40 fake stores.
      *
-     * NOT registered in DatabaseSeeder. Run explicitly when fake data is wanted:
-     *   php artisan db:seed --class=FakeAppCatalogSeeder
-     *
-     * Real-data flows use app:seed:handles + app:scrape:* instead.
+     * Registered in DatabaseSeeder so default `db:seed` produces a working
+     * demo state. Self-skips when ShopifyApp is already populated (real-data
+     * flow via app:seed:handles + app:scrape:*), so the same seeder is safe
+     * in both the demo and real-data paths.
      */
     public function run(): void
     {
