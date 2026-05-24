@@ -57,10 +57,12 @@ class ScrapeAppPageJob implements ShouldQueue
         }
 
         $parsed = $parser->parse($response->body());
+        $canonicalHandle = $this->resolveCanonicalHandle($response);
 
         ShopifyApp::updateOrCreate(
             ['shopify_app_handle' => $this->handle],
             [
+                'canonical_handle' => $canonicalHandle,
                 'name' => $parsed->name ?? $this->handle,
                 'developer_name' => $parsed->developerName ?? 'unknown',
                 'developer_url' => $parsed->developerUrl,
@@ -79,10 +81,34 @@ class ScrapeAppPageJob implements ShouldQueue
 
         Log::info('ScrapeAppPageJob success', [
             'handle' => $this->handle,
+            'canonical_handle' => $canonicalHandle,
             'name' => $parsed->name,
             'rating' => $parsed->averageRating,
             'reviews' => $parsed->totalReviews,
         ]);
+    }
+
+    /**
+     * Detect the canonical handle from the response's effective URI (set by
+     * Guzzle when it follows a 301/302). Returns null when no redirect
+     * happened — the public handle is then the canonical one. Returns null
+     * under Http::fake() too, since the fake stack doesn't set transferStats.
+     */
+    protected function resolveCanonicalHandle(\Illuminate\Http\Client\Response $response): ?string
+    {
+        $effectiveUri = $response->effectiveUri();
+        if ($effectiveUri === null) {
+            return null;
+        }
+
+        $segments = array_values(array_filter(explode('/', $effectiveUri->getPath()), 'strlen'));
+        $finalHandle = $segments[0] ?? null;
+
+        if ($finalHandle === null || $finalHandle === $this->handle) {
+            return null;
+        }
+
+        return $finalHandle;
     }
 
     protected function resolveCategoryId(ParsedShopifyApp $parsed): ?int

@@ -44,6 +44,13 @@ class MyAppsList extends BaseWidget
                     ->limit(90)
                     ->placeholder('—')
                     ->tooltip(fn (ShopifyApp $record): ?string => $record->ai_summary)
+                    // Filament wraps the click target around the text only, leaving the
+                    // surrounding cell padding as a dead zone. Delegate cell clicks to
+                    // the inner button so any part of the cell opens the modal.
+                    ->extraCellAttributes(fn (ShopifyApp $record): array => filled($record->ai_summary) ? [
+                        'class' => 'cursor-pointer',
+                        'onclick' => 'this.querySelector("button.fi-ta-col")?.click()',
+                    ] : [])
                     ->action(
                         Action::make('viewAiSummary')
                             ->modalHeading(fn (ShopifyApp $record): string => 'AI Summary — '.$record->name)

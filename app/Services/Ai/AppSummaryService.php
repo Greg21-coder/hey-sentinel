@@ -30,11 +30,23 @@ class AppSummaryService
             ->limit(AppSummaryPrompt::SAMPLE_SIZE)
             ->get();
 
-        if ($reviews->isEmpty()) {
-            Log::info('AppSummaryService skipped: no processed reviews', [
+        if ($reviews->count() < AppSummaryPrompt::MIN_SAMPLE_SIZE) {
+            Log::info('AppSummaryService skipped: insufficient processed reviews', [
                 'app_id' => $app->id,
                 'handle' => $app->shopify_app_handle,
+                'count' => $reviews->count(),
+                'min' => AppSummaryPrompt::MIN_SAMPLE_SIZE,
             ]);
+
+            // Clear any stale summary persisted from a previous run that had more
+            // data (or that the model hallucinated, as happened with Recart).
+            if (filled($app->ai_summary)) {
+                $app->update([
+                    'ai_summary' => null,
+                    'ai_summary_at' => null,
+                    'ai_summary_model' => null,
+                ]);
+            }
 
             return null;
         }

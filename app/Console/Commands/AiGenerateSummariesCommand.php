@@ -49,7 +49,7 @@ class AiGenerateSummariesCommand extends Command
             try {
                 $summary = $service->generateFor($app);
                 if ($summary === null) {
-                    $this->warn("  - {$app->shopify_app_handle}: skipped (no processed reviews)");
+                    $this->warn("  - {$app->shopify_app_handle}: skipped (insufficient processed reviews)");
                     $skipped++;
                 } else {
                     $this->info("  ✓ {$app->shopify_app_handle}: ".mb_substr($summary, 0, 80).'...');

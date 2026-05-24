@@ -16,6 +16,7 @@ class ShopifyApp extends Model
 
     protected $fillable = [
         'shopify_app_handle',
+        'canonical_handle',
         'name',
         'developer_name',
         'developer_url',
@@ -79,5 +80,14 @@ class ShopifyApp extends Model
     public function scopePendingScraping(Builder $query): Builder
     {
         return $query->where('scraping_status', ScrapingStatus::Pending->value);
+    }
+
+    /**
+     * Handle to use when fetching from apps.shopify.com. Falls back to the
+     * public handle when no canonical redirect was detected.
+     */
+    public function scrapingHandle(): string
+    {
+        return $this->canonical_handle ?? $this->shopify_app_handle;
     }
 }

@@ -32,7 +32,7 @@ class ScrapeReviewPageJob implements ShouldQueue
     {
         $app = ShopifyApp::findOrFail($this->appId);
 
-        $response = $scraper->fetch($app->shopify_app_handle, $this->page);
+        $response = $scraper->fetch($app->scrapingHandle(), $this->page);
         if ($response === null) {
             $this->release(60);
 

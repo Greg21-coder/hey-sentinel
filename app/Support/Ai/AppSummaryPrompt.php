@@ -14,6 +14,10 @@ class AppSummaryPrompt
     // 15 recent processed reviews still captures the dominant signal.
     public const SAMPLE_SIZE = 15;
 
+    // Below this, qwen2.5 hallucinates (observed: 1 English review → Chinese summary).
+    // 3 is the smallest count where "patterns across reviews" makes sense.
+    public const MIN_SAMPLE_SIZE = 3;
+
     public static function system(): string
     {
         return <<<'PROMPT'
