@@ -32,9 +32,15 @@ it('seeder produces the expected demo state and is idempotent', function () {
     // not catch it. Assert the floor so the regression cannot recur.
     expect(ShopifyApp::count())->toBeGreaterThan(0);
     expect(StoreReview::count())->toBeGreaterThan(0);
+
+    // try/finally so a failing assertion does not leak the disabled trait
+    // state into the rest of the Pest worker process.
     AccountFollowedApp::disable();
-    expect(AccountFollowedApp::count())->toBeGreaterThan(0);
-    AccountFollowedApp::enable();
+    try {
+        expect(AccountFollowedApp::count())->toBeGreaterThan(0);
+    } finally {
+        AccountFollowedApp::enable();
+    }
 
     // Run again — counts must be identical
     Artisan::call('db:seed', ['--force' => true]);
