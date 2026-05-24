@@ -29,6 +29,7 @@ services:
             - mailpit
     scheduler:
         image: 'sail-8.5/app'
+        profiles: ['workers']
         environment:
             WWWUSER: '${WWWUSER:-1000}'
             LARAVEL_SAIL: 1
@@ -46,6 +47,7 @@ services:
         restart: unless-stopped
     horizon:
         image: 'sail-8.5/app'
+        profiles: ['workers']
         environment:
             WWWUSER: '${WWWUSER:-1000}'
             LARAVEL_SAIL: 1
@@ -63,6 +65,8 @@ services:
         restart: unless-stopped
     mysql:
         image: 'mysql:8.4'
+        command:
+            - '--innodb_buffer_pool_size=256M'
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
         environment:
@@ -108,15 +112,6 @@ services:
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
         networks:
             - sail
-    ollama:
-        image: 'ollama/ollama:latest'
-        ports:
-            - '${FORWARD_OLLAMA_PORT:-11434}:11434'
-        volumes:
-            - 'sail-ollama:/root/.ollama'
-        networks:
-            - sail
-        restart: unless-stopped
 networks:
     sail:
         driver: bridge
@@ -124,6 +119,4 @@ volumes:
     sail-mysql:
         driver: local
     sail-redis:
-        driver: local
-    sail-ollama:
         driver: local
