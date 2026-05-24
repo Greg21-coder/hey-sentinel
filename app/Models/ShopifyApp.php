@@ -33,6 +33,9 @@ class ShopifyApp extends Model
         'scraping_error',
         'last_scraped_at',
         'ai_processed_at',
+        'ai_summary',
+        'ai_summary_at',
+        'ai_summary_model',
     ];
 
     protected function casts(): array
@@ -47,6 +50,7 @@ class ShopifyApp extends Model
             'scraping_status' => ScrapingStatus::class,
             'last_scraped_at' => 'datetime',
             'ai_processed_at' => 'datetime',
+            'ai_summary_at' => 'datetime',
         ];
     }
 
