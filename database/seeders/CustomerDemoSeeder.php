@@ -33,22 +33,26 @@ class CustomerDemoSeeder extends Seeder
                 ->get();
         }
 
+        // try/finally so a mid-loop failure (FK violation, deadlock, etc.) does
+        // not leak the disabled trait state into the rest of the artisan
+        // process and silently bypass tenant scoping in subsequent callers.
         AccountFollowedApp::disable();
-
-        foreach ($apps as $index => $app) {
-            AccountFollowedApp::updateOrCreate(
-                ['account_id' => $account->id, 'shopify_app_id' => $app->id],
-                [
-                    'kind' => $index === 0
-                        ? FollowedAppKind::Mine->value
-                        : FollowedAppKind::Competitor->value,
-                    'followed_at' => now()->subDays($index + 1),
-                    'notes' => $index === 0 ? 'My flagship app — Acme Inventory' : null,
-                ]
-            );
+        try {
+            foreach ($apps as $index => $app) {
+                AccountFollowedApp::updateOrCreate(
+                    ['account_id' => $account->id, 'shopify_app_id' => $app->id],
+                    [
+                        'kind' => $index === 0
+                            ? FollowedAppKind::Mine->value
+                            : FollowedAppKind::Competitor->value,
+                        'followed_at' => now()->subDays($index + 1),
+                        'notes' => $index === 0 ? 'My flagship app — Acme Inventory' : null,
+                    ]
+                );
+            }
+        } finally {
+            AccountFollowedApp::enable();
         }
-
-        AccountFollowedApp::enable();
 
         $this->command?->info("CustomerDemoSeeder: attached {$apps->count()} apps to acme-corp.");
     }

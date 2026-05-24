@@ -3,7 +3,6 @@
 use App\Enums\FollowedAppKind;
 use App\Models\Account;
 use App\Models\AccountFollowedApp;
-use App\Models\Concerns\BelongsToAccount;
 use App\Models\ShopifyApp;
 use App\Models\User;
 use Illuminate\Database\QueryException;
@@ -74,9 +73,13 @@ it('BelongsToAccount scopes followedApps to the auth user current account', func
     $accountB = Account::factory()->create(['owner_user_id' => $userB->id]);
     $app = ShopifyApp::factory()->create();
 
-    // try/finally so a creation failure does not leak the disabled trait
-    // state into the rest of the Pest worker process.
-    BelongsToAccount::disable();
+    // Must call disable()/enable() on the MODEL class — calling the trait
+    // directly (BelongsToAccount::disable()) is a PHP 8.1+ deprecation and
+    // toggles a different static slot than the one the boot closure reads
+    // via late static binding (verified empirically), so it does not actually
+    // disable the scope. try/finally so a creation failure does not leak the
+    // disabled state into the rest of the Pest worker process.
+    AccountFollowedApp::disable();
     try {
         AccountFollowedApp::create([
             'account_id' => $accountA->id,
@@ -91,7 +94,7 @@ it('BelongsToAccount scopes followedApps to the auth user current account', func
             'followed_at' => now(),
         ]);
     } finally {
-        BelongsToAccount::enable();
+        AccountFollowedApp::enable();
     }
 
     $this->actingAs($userA);
