@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ScrapingStatus;
+use App\Models\Concerns\HasUnlisting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ShopifyApp extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUnlisting;
 
     protected $fillable = [
         'shopify_app_handle',
@@ -37,6 +38,7 @@ class ShopifyApp extends Model
         'ai_summary',
         'ai_summary_at',
         'ai_summary_model',
+        'unlisted_at',
     ];
 
     protected function casts(): array
@@ -52,6 +54,7 @@ class ShopifyApp extends Model
             'last_scraped_at' => 'datetime',
             'ai_processed_at' => 'datetime',
             'ai_summary_at' => 'datetime',
+            'unlisted_at' => 'datetime',
         ];
     }
 

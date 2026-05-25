@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ScrapingStatus;
+use App\Models\Concerns\HasUnlisting;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ShopifyStore extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUnlisting;
 
     protected $fillable = [
         'domain',
@@ -27,6 +28,7 @@ class ShopifyStore extends Model
         'storeleads_payload_hash',
         'storeleads_synced_at',
         'scraping_status',
+        'unlisted_at',
     ];
 
     protected function casts(): array
@@ -38,6 +40,7 @@ class ShopifyStore extends Model
             'apps_installed_count' => 'integer',
             'storeleads_synced_at' => 'datetime',
             'scraping_status' => ScrapingStatus::class,
+            'unlisted_at' => 'datetime',
         ];
     }
 
