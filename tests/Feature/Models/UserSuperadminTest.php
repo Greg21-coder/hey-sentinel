@@ -62,23 +62,34 @@ it('currentAccount returns null for users with no accounts', function () {
     expect($user->currentAccount)->toBeNull();
 });
 
-it('non-superadmin cannot access the admin panel', function () {
+it('non-superadmin is blocked from admin routes', function () {
     $user = User::factory()->create();
-    $panel = \Filament\Facades\Filament::getPanel('admin');
+    $account = Account::factory()->create(['owner_user_id' => $user->id]);
+    AccountUser::create([
+        'account_id' => $account->id,
+        'user_id' => $user->id,
+        'role' => UserRole::Owner->value,
+        'invitation_accepted_at' => now(),
+    ]);
 
-    expect($user->canAccessPanel($panel))->toBeFalse();
+    $this->actingAs($user)->get('/admin')->assertStatus(403);
 });
 
-it('superadmin can access the admin panel', function () {
+it('superadmin can access admin routes', function () {
     $user = User::factory()->superadmin()->create();
-    $panel = \Filament\Facades\Filament::getPanel('admin');
 
-    expect($user->canAccessPanel($panel))->toBeTrue();
+    $this->actingAs($user)->get('/admin')->assertStatus(200);
 });
 
-it('any user can access the customer panel', function () {
+it('any authenticated user can access customer routes', function () {
     $user = User::factory()->create();
-    $panel = \Filament\Facades\Filament::getPanel('customer');
+    $account = Account::factory()->create(['owner_user_id' => $user->id]);
+    AccountUser::create([
+        'account_id' => $account->id,
+        'user_id' => $user->id,
+        'role' => UserRole::Owner->value,
+        'invitation_accepted_at' => now(),
+    ]);
 
-    expect($user->canAccessPanel($panel))->toBeTrue();
+    $this->actingAs($user)->get('/customer')->assertStatus(200);
 });
