@@ -55,7 +55,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     };
 
     const isActive = (href: string) =>
-        url === href || url.startsWith(href + '/');
+        href === '/customer' ? url === '/customer' : url === href || url.startsWith(href + '/');
 
     return (
         <div className="flex min-h-screen bg-gray-50">

@@ -100,7 +100,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     };
 
     const isActive = (href: string) =>
-        url === href || url.startsWith(href + '/');
+        href === '/admin' ? url === '/admin' : url === href || url.startsWith(href + '/');
 
     return (
         <div className="flex min-h-screen bg-gray-100">
