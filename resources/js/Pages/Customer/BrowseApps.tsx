@@ -1,0 +1,262 @@
+import React, { useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import CustomerLayout from '@/Layouts/CustomerLayout';
+import Card from '@/Components/ui/Card';
+import Badge from '@/Components/ui/Badge';
+import Button from '@/Components/ui/Button';
+import Modal from '@/Components/ui/Modal';
+import Input from '@/Components/ui/Input';
+import UpgradePrompt from '@/Components/ui/UpgradePrompt';
+import DataTable, { Column, FilterConfig } from '@/Components/tables/DataTable';
+import { PageProps } from '@/types';
+import { ShopifyApp, PaginatedResponse } from '@/types/models';
+
+interface Props extends PageProps {
+    apps: PaginatedResponse<ShopifyApp>;
+    followedIds: number[];
+    categories: Record<number, string>;
+    painPointOptions: { value: string; label: string }[];
+    filters: Record<string, string>;
+}
+
+const ratingColor = (rating: number): 'success' | 'warning' | 'danger' | 'gray' => {
+    if (rating >= 4) return 'success';
+    if (rating >= 3) return 'warning';
+    if (rating > 0) return 'danger';
+    return 'gray';
+};
+
+const BrowseApps: React.FC<Props> = ({
+    apps,
+    followedIds,
+    categories,
+    painPointOptions,
+    filters,
+}) => {
+    const { featureGates } = usePage<PageProps>().props;
+    const canExport = featureGates?.export_csv?.value === true;
+
+    const [saveModalOpen, setSaveModalOpen] = useState(false);
+    const [searchName, setSearchName] = useState('');
+    const [savingSearch, setSavingSearch] = useState(false);
+
+    const followedSet = new Set(followedIds);
+
+    const columns: Column<ShopifyApp>[] = [
+        {
+            key: 'name',
+            label: 'App',
+            sortable: true,
+            render: (row) => (
+                <a
+                    href={`/customer/apps/${row.id}`}
+                    className="font-medium text-indigo-600 hover:underline"
+                >
+                    {row.name}
+                </a>
+            ),
+        },
+        {
+            key: 'developer_name',
+            label: 'Developer',
+            sortable: true,
+        },
+        {
+            key: 'category',
+            label: 'Category',
+            render: (row) =>
+                row.category ? (
+                    <Badge color="gray">{row.category}</Badge>
+                ) : (
+                    <span className="text-gray-400">—</span>
+                ),
+        },
+        {
+            key: 'average_rating',
+            label: 'Rating',
+            sortable: true,
+            render: (row) => (
+                <Badge color={ratingColor(row.average_rating)}>
+                    {row.average_rating > 0
+                        ? row.average_rating.toFixed(1)
+                        : '—'}
+                </Badge>
+            ),
+        },
+        {
+            key: 'total_reviews',
+            label: 'Reviews',
+            sortable: true,
+            render: (row) => row.total_reviews.toLocaleString(),
+        },
+        {
+            key: 'pricing_min_usd',
+            label: 'Pricing',
+            render: (row) => {
+                if (row.pricing_has_free) return <Badge color="success">Free</Badge>;
+                if (row.pricing_min_usd) return `$${row.pricing_min_usd}/mo`;
+                return <span className="text-gray-400">—</span>;
+            },
+        },
+    ];
+
+    const categoryOptions = Object.entries(categories).map(([id, name]) => ({
+        value: id,
+        label: name,
+    }));
+
+    const tableFilters: FilterConfig[] = [
+        {
+            key: 'category',
+            label: 'Category',
+            type: 'select',
+            options: categoryOptions,
+        },
+        {
+            key: 'rating_min',
+            label: 'Min Rating',
+            type: 'text',
+        },
+        {
+            key: 'pricing',
+            label: 'Pricing',
+            type: 'select',
+            options: [
+                { value: 'free', label: 'Free' },
+                { value: 'paid', label: 'Paid' },
+            ],
+        },
+        {
+            key: 'keyword',
+            label: 'Keyword',
+            type: 'text',
+        },
+    ];
+
+    const handleFollow = (app: ShopifyApp) => {
+        router.post(`/customer/apps/${app.id}/follow`, {}, { preserveScroll: true });
+    };
+
+    const handleUnfollow = (app: ShopifyApp) => {
+        router.delete(`/customer/apps/${app.id}/follow`, { preserveScroll: true });
+    };
+
+    const handleSaveSearch = () => {
+        if (!searchName.trim()) return;
+        setSavingSearch(true);
+        router.post(
+            '/customer/saved-searches',
+            { name: searchName, filters },
+            {
+                onFinish: () => {
+                    setSavingSearch(false);
+                    setSaveModalOpen(false);
+                    setSearchName('');
+                },
+            },
+        );
+    };
+
+    const handleExport = () => {
+        router.post('/customer/export/apps', filters);
+    };
+
+    return (
+        <CustomerLayout>
+            <Head title="Browse Apps" />
+
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <h1 className="text-xl font-semibold text-gray-900">Browse Apps</h1>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setSaveModalOpen(true)}
+                        >
+                            Save this search
+                        </Button>
+
+                        {canExport ? (
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleExport}
+                            >
+                                Export CSV
+                            </Button>
+                        ) : (
+                            <UpgradePrompt feature="CSV Export" />
+                        )}
+                    </div>
+                </div>
+
+                <Card>
+                    <DataTable
+                        columns={columns}
+                        data={apps.data}
+                        meta={apps.meta}
+                        links={apps.links}
+                        filters={tableFilters}
+                        currentFilters={filters}
+                        rowActions={(row) =>
+                            followedSet.has(row.id) ? (
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => handleUnfollow(row)}
+                                >
+                                    Unfollow
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={() => handleFollow(row)}
+                                >
+                                    Follow
+                                </Button>
+                            )
+                        }
+                        emptyMessage="No apps found matching your filters."
+                    />
+                </Card>
+            </div>
+
+            {/* Save search modal */}
+            <Modal
+                open={saveModalOpen}
+                onClose={() => setSaveModalOpen(false)}
+                title="Save Search"
+            >
+                <div className="space-y-4">
+                    <Input
+                        label="Search name"
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                        placeholder="e.g. Free review apps 4+ stars"
+                    />
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="secondary"
+                            onClick={() => setSaveModalOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={handleSaveSearch}
+                            loading={savingSearch}
+                            disabled={!searchName.trim()}
+                        >
+                            Save
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+        </CustomerLayout>
+    );
+};
+
+export default BrowseApps;
