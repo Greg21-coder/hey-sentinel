@@ -16,4 +16,14 @@ export default defineConfig({
             '@': path.resolve(__dirname, 'resources/js'),
         },
     },
+    server: {
+        host: '0.0.0.0',
+        port: Number(process.env.VITE_PORT) || 5174,
+        hmr: {
+            host: 'localhost',
+        },
+        watch: {
+            usePolling: true,
+        },
+    },
 });
