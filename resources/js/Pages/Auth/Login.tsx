@@ -65,7 +65,7 @@ const Login: React.FC = () => {
                                     id="remember"
                                     checked={data.remember}
                                     onChange={(e) => setData('remember', e.target.checked)}
-                                    className="h-4 w-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+                                    className="h-4 w-4 rounded border-gray-300 text-shopify-500 focus:ring-shopify-500"
                                 />
                                 <label htmlFor="remember" className="text-sm text-gray-700">
                                     Remember me
@@ -88,7 +88,7 @@ const Login: React.FC = () => {
                         Don&apos;t have an account?{' '}
                         <a
                             href="/register"
-                            className="font-medium text-amber-600 hover:text-amber-700 transition-colors duration-150"
+                            className="font-medium text-shopify-500 hover:text-shopify-700 transition-colors duration-150"
                         >
                             Start your free trial
                         </a>

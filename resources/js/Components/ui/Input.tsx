@@ -24,7 +24,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     id={inputId}
                     className={[
                         'block w-full rounded-lg border px-3 py-2 text-sm shadow-sm',
-                        'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500',
+                        'focus:outline-none focus:ring-2 focus:ring-shopify-500 focus:border-shopify-500',
                         error
                             ? 'border-red-400 bg-red-50 text-red-900 placeholder-red-400'
                             : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400',

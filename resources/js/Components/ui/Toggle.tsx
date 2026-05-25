@@ -32,9 +32,9 @@ const Toggle: React.FC<ToggleProps> = ({
                 onClick={() => onChange(!checked)}
                 className={[
                     'relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent',
-                    'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2',
+                    'focus:outline-none focus:ring-2 focus:ring-shopify-500 focus:ring-offset-2',
                     'transition-colors duration-150',
-                    checked ? 'bg-amber-500' : 'bg-gray-200',
+                    checked ? 'bg-shopify-500' : 'bg-gray-200',
                     disabled ? 'cursor-not-allowed' : 'cursor-pointer',
                 ].join(' ')}
             >

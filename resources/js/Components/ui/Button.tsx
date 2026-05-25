@@ -12,7 +12,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
     primary:
-        'bg-amber-500 text-white hover:bg-amber-600 border border-amber-500 hover:border-amber-600',
+        'bg-shopify-500 text-white hover:bg-shopify-600 border border-shopify-500 hover:border-shopify-600',
     secondary:
         'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 hover:border-gray-400',
     danger:
@@ -62,7 +62,7 @@ const Button: React.FC<ButtonProps> = ({
     ...rest
 }) => {
     const baseClasses =
-        'inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed';
+        'inline-flex items-center justify-center font-medium rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-shopify-500 disabled:opacity-50 disabled:cursor-not-allowed';
 
     const classes = [
         baseClasses,

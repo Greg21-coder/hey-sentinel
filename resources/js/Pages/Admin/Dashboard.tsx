@@ -284,7 +284,7 @@ export default function Dashboard({ stats, pipeline, ai_batches, sentimentBreakd
                             <div className="grid grid-cols-2 gap-4">
                                 {Object.entries(ai_batches).map(([status, count]) => {
                                     const color = status === 'completed' ? 'bg-green-500' :
-                                                  status === 'pending' ? 'bg-amber-500' :
+                                                  status === 'pending' ? 'bg-[#ffc453]' :
                                                   status === 'failed' ? 'bg-red-500' : 'bg-slate-400';
                                     return (
                                         <div key={status} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">

@@ -129,7 +129,7 @@ const Register: React.FC<RegisterProps> = ({ preselectedPlan, plans }) => {
                                                 className={[
                                                     'flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors duration-150',
                                                     data.plan_slug === plan.slug
-                                                        ? 'border-amber-400 bg-amber-50'
+                                                        ? 'border-shopify-400 bg-shopify-50'
                                                         : 'border-gray-200 bg-white hover:bg-gray-50',
                                                 ].join(' ')}
                                             >
@@ -139,7 +139,7 @@ const Register: React.FC<RegisterProps> = ({ preselectedPlan, plans }) => {
                                                     value={plan.slug}
                                                     checked={data.plan_slug === plan.slug}
                                                     onChange={() => setData('plan_slug', plan.slug)}
-                                                    className="h-4 w-4 text-amber-500 border-gray-300 focus:ring-amber-500"
+                                                    className="h-4 w-4 text-shopify-500 border-gray-300 focus:ring-shopify-500"
                                                 />
                                                 <span className="flex-1 text-sm font-medium text-gray-900">
                                                     {plan.name}
@@ -169,7 +169,7 @@ const Register: React.FC<RegisterProps> = ({ preselectedPlan, plans }) => {
                         Already have an account?{' '}
                         <a
                             href="/login"
-                            className="font-medium text-amber-600 hover:text-amber-700 transition-colors duration-150"
+                            className="font-medium text-shopify-500 hover:text-shopify-700 transition-colors duration-150"
                         >
                             Log in
                         </a>

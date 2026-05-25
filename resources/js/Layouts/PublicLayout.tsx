@@ -8,7 +8,7 @@ interface PublicLayoutProps {
 
 const Logo: React.FC = () => (
     <a href="/" className="flex items-center gap-2">
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white font-bold text-sm">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-shopify-400 to-shopify-600 text-white font-bold text-sm">
             H
         </span>
         <span className="text-gray-900 font-semibold text-base">HeySentinel</span>
@@ -54,7 +54,7 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
                             {isLoggedIn ? (
                                 <a
                                     href="/customer"
-                                    className="inline-flex items-center justify-center rounded-lg bg-amber-500 hover:bg-amber-600 px-4 py-2 text-sm font-medium text-white border border-amber-500 hover:border-amber-600 transition-colors duration-150"
+                                    className="inline-flex items-center justify-center rounded-lg bg-shopify-500 hover:bg-shopify-600 px-4 py-2 text-sm font-medium text-white border border-shopify-500 hover:border-shopify-600 transition-colors duration-150"
                                 >
                                     Dashboard
                                 </a>
@@ -68,7 +68,7 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
                                     </a>
                                     <a
                                         href="/register"
-                                        className="inline-flex items-center justify-center rounded-lg bg-amber-500 hover:bg-amber-600 px-4 py-2 text-sm font-medium text-white border border-amber-500 hover:border-amber-600 transition-colors duration-150"
+                                        className="inline-flex items-center justify-center rounded-lg bg-shopify-500 hover:bg-shopify-600 px-4 py-2 text-sm font-medium text-white border border-shopify-500 hover:border-shopify-600 transition-colors duration-150"
                                     >
                                         Start free trial
                                     </a>
