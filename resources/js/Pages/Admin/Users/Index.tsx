@@ -72,7 +72,7 @@ export default function UsersIndex({ users }: Props) {
                         <div className="flex items-center gap-2 justify-end">
                             <Link
                                 href={`/admin/users/${row.id}/edit`}
-                                className="text-sm text-indigo-600 hover:text-indigo-800"
+                                className="text-sm text-shopify-500 hover:text-shopify-700"
                             >
                                 Edit
                             </Link>

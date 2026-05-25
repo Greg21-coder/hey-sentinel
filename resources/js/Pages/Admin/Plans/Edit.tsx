@@ -225,7 +225,7 @@ export default function PlanEdit({ plan, features }: Props) {
                                                 <td className="px-4 py-3 text-gray-700">{feat.feature_value}</td>
                                                 <td className="px-4 py-3 text-gray-500">{feat.value_type}</td>
                                                 <td className="px-4 py-3 text-right whitespace-nowrap">
-                                                    <button onClick={() => setEditingFeature(feat)} className="text-sm text-indigo-600 hover:text-indigo-800 mr-2">Edit</button>
+                                                    <button onClick={() => setEditingFeature(feat)} className="text-sm text-shopify-500 hover:text-shopify-700 mr-2">Edit</button>
                                                     <button onClick={() => handleDeleteFeature(feat.id)} className="text-sm text-red-600 hover:text-red-800">Remove</button>
                                                 </td>
                                             </>

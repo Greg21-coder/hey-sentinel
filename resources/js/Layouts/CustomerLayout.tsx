@@ -34,7 +34,7 @@ const navItems: NavItem[] = [
 
 const Logo: React.FC = () => (
     <a href="/customer" className="flex items-center gap-2">
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white font-bold text-sm">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-shopify-500 text-white font-bold text-sm">
             H
         </span>
         <span className="text-gray-900 font-semibold text-base">HeySentinel</span>
@@ -58,7 +58,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
         href === '/customer' ? url === '/customer' : url === href || url.startsWith(href + '/');
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-surface-100">
             {/* Sidebar */}
             <aside className="flex flex-col w-[264px] flex-shrink-0 bg-white border-r border-gray-200">
                 {/* Logo */}
@@ -78,8 +78,8 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                                         className={[
                                             'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150',
                                             active
-                                                ? 'bg-indigo-50 text-indigo-700'
-                                                : 'text-gray-700 hover:bg-gray-100',
+                                                ? 'bg-shopify-50 text-shopify-700'
+                                                : 'text-surface-700 hover:bg-surface-200',
                                         ].join(' ')}
                                     >
                                         <svg

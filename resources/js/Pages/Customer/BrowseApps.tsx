@@ -50,7 +50,7 @@ const BrowseApps: React.FC<Props> = ({
             render: (row) => (
                 <a
                     href={`/customer/apps/${row.id}`}
-                    className="font-medium text-indigo-600 hover:underline"
+                    className="font-medium text-shopify-500 hover:underline"
                 >
                     {row.name}
                 </a>

@@ -183,7 +183,7 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) =>
                         </div>
                         <button
                             onClick={() => setSummaryExpanded((v) => !v)}
-                            className="mt-2 text-sm font-medium text-indigo-600 hover:underline"
+                            className="mt-2 text-sm font-medium text-shopify-500 hover:underline"
                         >
                             {summaryExpanded ? 'Show less' : 'Read more'}
                         </button>

@@ -182,7 +182,7 @@ const SavedSearches: React.FC<Props> = ({ savedSearches }) => {
                     </h1>
                     <a
                         href="/customer/apps"
-                        className="text-sm font-medium text-indigo-600 hover:underline"
+                        className="text-sm font-medium text-shopify-500 hover:underline"
                     >
                         Browse apps to save a search
                     </a>
@@ -198,7 +198,7 @@ const SavedSearches: React.FC<Props> = ({ savedSearches }) => {
                             No saved searches yet.{' '}
                             <a
                                 href="/customer/apps"
-                                className="text-indigo-600 hover:underline"
+                                className="text-shopify-500 hover:underline"
                             >
                                 Browse apps
                             </a>{' '}

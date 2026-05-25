@@ -42,8 +42,8 @@ const PainPointsRadar: React.FC<Props> = ({ labels, counts }) => {
                 <Radar
                     name="Mentions"
                     dataKey="count"
-                    stroke="#6366f1"
-                    fill="#6366f1"
+                    stroke="#008060"
+                    fill="#008060"
                     fillOpacity={0.25}
                     strokeWidth={2}
                 />

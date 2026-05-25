@@ -211,7 +211,7 @@ function DataTable<T extends { id: number | string }>({
                                     <input
                                         id={`filter-toggle-${filter.key}`}
                                         type="checkbox"
-                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                        className="h-4 w-4 rounded border-gray-300 text-shopify-500 focus:ring-shopify-500"
                                         checked={
                                             currentFilters[filter.key] === '1'
                                         }

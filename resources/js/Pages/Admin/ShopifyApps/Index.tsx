@@ -108,7 +108,7 @@ export default function ShopifyAppsIndex({ apps, filters }: Props) {
                         <div className="flex items-center gap-2 justify-end">
                             <Link
                                 href={`/admin/shopify-apps/${row.id}`}
-                                className="text-sm text-indigo-600 hover:text-indigo-800"
+                                className="text-sm text-shopify-500 hover:text-shopify-700"
                             >
                                 View
                             </Link>

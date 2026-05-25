@@ -13,7 +13,7 @@ const colorClasses: Record<BadgeColor, string> = {
     success: 'bg-green-100 text-green-700',
     warning: 'bg-amber-100 text-amber-700',
     danger: 'bg-red-100 text-red-700',
-    primary: 'bg-indigo-100 text-indigo-700',
+    primary: 'bg-shopify-100 text-shopify-700',
 };
 
 const Badge: React.FC<BadgeProps> = ({ color = 'gray', children }) => {

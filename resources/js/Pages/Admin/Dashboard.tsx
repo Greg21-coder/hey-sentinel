@@ -33,17 +33,17 @@ interface Props {
 }
 
 const SENTIMENT_COLORS: Record<string, string> = {
-    positive: '#22c55e',
-    neutral: '#94a3b8',
-    mixed: '#eab308',
-    negative: '#ef4444',
+    positive: '#008060',
+    neutral: '#8c9196',
+    mixed: '#ffc453',
+    negative: '#d72c0d',
 };
 
 const ACCOUNT_STATUS_COLORS: Record<string, string> = {
-    trial: '#6366f1',
-    active: '#22c55e',
-    cancelled: '#ef4444',
-    expired: '#94a3b8',
+    trial: '#2c6ecb',
+    active: '#008060',
+    cancelled: '#d72c0d',
+    expired: '#8c9196',
 };
 
 interface StatCardProps {
@@ -137,25 +137,25 @@ export default function Dashboard({ stats, pipeline, ai_batches, sentimentBreakd
                         label="Accounts"
                         value={stats.total_accounts}
                         icon="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                        color="bg-indigo-500"
+                        color="bg-shopify-500"
                     />
                     <StatCard
                         label="Users"
                         value={stats.total_users}
                         icon="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                        color="bg-blue-500"
+                        color="bg-[#2c6ecb]"
                     />
                     <StatCard
                         label="Apps Tracked"
                         value={stats.total_apps}
                         icon="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                        color="bg-amber-500"
+                        color="bg-shopify-400"
                     />
                     <StatCard
                         label="Reviews Collected"
                         value={stats.total_reviews}
                         icon="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                        color="bg-green-500"
+                        color="bg-shopify-700"
                     />
                 </div>
 
@@ -166,38 +166,38 @@ export default function Dashboard({ stats, pipeline, ai_batches, sentimentBreakd
                             label="Scraped"
                             value={pipeline.scraped}
                             icon="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                            color="bg-slate-600"
+                            color="bg-surface-600"
                         />
                         <PipelineStep
                             label="Pending"
                             value={pipeline.pending}
                             icon="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            color="bg-amber-500"
+                            color="bg-[#ffc453]"
                         />
                         <PipelineStep
                             label="In Batch"
                             value={pipeline.batched}
                             icon="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                            color="bg-blue-500"
+                            color="bg-[#2c6ecb]"
                         />
                         <PipelineStep
                             label="Processed"
                             value={pipeline.processed}
                             icon="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            color="bg-green-500"
+                            color="bg-shopify-500"
                         />
                         <PipelineStep
                             label="Pain Points"
                             value={pipeline.pain_points}
                             icon="M13 10V3L4 14h7v7l9-11h-7z"
-                            color="bg-red-500"
+                            color="bg-[#d72c0d]"
                             isLast
                         />
                     </div>
                     <div className="mt-2 flex items-center gap-3">
                         <div className="flex-1 bg-gray-200 rounded-full h-2">
                             <div
-                                className="bg-green-500 h-2 rounded-full"
+                                className="bg-shopify-500 h-2 rounded-full"
                                 style={{ width: `${pipeline.progress_pct}%` }}
                             />
                         </div>
@@ -216,7 +216,7 @@ export default function Dashboard({ stats, pipeline, ai_batches, sentimentBreakd
                                 <XAxis dataKey="week" tick={{ fontSize: 11 }} />
                                 <YAxis tick={{ fontSize: 12 }} />
                                 <Tooltip />
-                                <Bar dataKey="reviews" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="reviews" fill="#008060" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </Card>

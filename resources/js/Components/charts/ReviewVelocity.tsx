@@ -44,7 +44,7 @@ const ReviewVelocity: React.FC<Props> = ({ labels, counts }) => {
                     }}
                     cursor={{ fill: '#f3f4f6' }}
                 />
-                <Bar dataKey="Reviews" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Reviews" fill="#008060" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
     );

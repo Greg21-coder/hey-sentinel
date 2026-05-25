@@ -79,7 +79,7 @@ const navSections: NavSection[] = [
 
 const Logo: React.FC = () => (
     <a href="/admin" className="flex items-center gap-2">
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white font-bold text-sm">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-shopify-500 text-white font-bold text-sm">
             H
         </span>
         <span className="text-white font-semibold text-base">HeySentinel</span>
@@ -105,9 +105,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     return (
         <div className="flex min-h-screen bg-gray-100">
             {/* Sidebar */}
-            <aside className="flex flex-col w-[264px] flex-shrink-0 bg-slate-900">
+            <aside className="flex flex-col w-[264px] flex-shrink-0 bg-surface-900">
                 {/* Logo */}
-                <div className="flex items-center h-16 px-5 border-b border-slate-800">
+                <div className="flex items-center h-16 px-5 border-b border-surface-800">
                     <Logo />
                 </div>
 
@@ -115,7 +115,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <nav className="flex-1 overflow-y-auto py-4 px-3">
                     {navSections.map((section) => (
                         <div key={section.label} className="mb-5">
-                            <p className="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            <p className="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-surface-500">
                                 {section.label}
                             </p>
                             <ul className="space-y-0.5">
@@ -128,8 +128,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                 className={[
                                                     'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150',
                                                     active
-                                                        ? 'bg-slate-700 text-white'
-                                                        : 'text-slate-300 hover:bg-slate-800 hover:text-white',
+                                                        ? 'bg-shopify-600 text-white'
+                                                        : 'text-surface-400 hover:bg-surface-800 hover:text-white',
                                                 ].join(' ')}
                                             >
                                                 <svg
@@ -157,13 +157,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </nav>
 
                 {/* Account info + logout */}
-                <div className="border-t border-slate-800 p-4">
+                <div className="border-t border-surface-800 p-4">
                     {auth.user && (
                         <div className="mb-3">
-                            <p className="text-xs font-medium text-slate-200 truncate">
+                            <p className="text-xs font-medium text-surface-300 truncate">
                                 {auth.user.name}
                             </p>
-                            <p className="text-xs text-slate-400 truncate">
+                            <p className="text-xs text-surface-500 truncate">
                                 {auth.user.email}
                             </p>
                         </div>
@@ -171,7 +171,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <form onSubmit={handleLogout}>
                         <button
                             type="submit"
-                            className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors duration-150"
+                            className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-surface-400 hover:bg-surface-800 hover:text-white transition-colors duration-150"
                         >
                             <svg
                                 className="h-4 w-4 flex-shrink-0"

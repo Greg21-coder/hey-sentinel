@@ -59,7 +59,7 @@ const SentimentTimeline: React.FC<Props> = ({
                 <Line
                     type="monotone"
                     dataKey="Positive"
-                    stroke="#22c55e"
+                    stroke="#008060"
                     strokeWidth={2}
                     dot={false}
                 />
@@ -73,14 +73,14 @@ const SentimentTimeline: React.FC<Props> = ({
                 <Line
                     type="monotone"
                     dataKey="Mixed"
-                    stroke="#eab308"
+                    stroke="#ffc453"
                     strokeWidth={2}
                     dot={false}
                 />
                 <Line
                     type="monotone"
                     dataKey="Negative"
-                    stroke="#ef4444"
+                    stroke="#d72c0d"
                     strokeWidth={2}
                     dot={false}
                 />

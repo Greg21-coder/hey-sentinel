@@ -144,7 +144,7 @@ const Dashboard: React.FC<Props> = ({
                                             No apps followed yet.{' '}
                                             <a
                                                 href="/customer/apps"
-                                                className="text-indigo-600 hover:underline"
+                                                className="text-shopify-500 hover:underline"
                                             >
                                                 Browse apps
                                             </a>
@@ -159,7 +159,7 @@ const Dashboard: React.FC<Props> = ({
                                             <td className="px-6 py-3 font-medium text-gray-900">
                                                 <a
                                                     href={`/customer/apps/${app.id}`}
-                                                    className="hover:text-indigo-600"
+                                                    className="hover:text-shopify-500"
                                                 >
                                                     {app.name}
                                                 </a>
