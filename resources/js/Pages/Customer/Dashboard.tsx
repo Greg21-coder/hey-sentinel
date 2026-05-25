@@ -165,10 +165,10 @@ const Dashboard: React.FC<Props> = ({
                                                 </a>
                                             </td>
                                             <td className="px-4 py-3 text-gray-700">
-                                                {app.average_rating}
+                                                {Number(app.average_rating).toFixed(2)}
                                             </td>
                                             <td className="px-4 py-3 text-gray-700">
-                                                {app.total_reviews.toLocaleString()}
+                                                {Number(app.total_reviews).toLocaleString()}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <Badge color={kindBadgeColor(app.pivot_kind)}>

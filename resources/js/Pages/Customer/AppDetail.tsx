@@ -10,10 +10,10 @@ import { PageProps } from '@/types';
 import { ShopifyApp, StoreReview, PaginatedResponse } from '@/types/models';
 
 interface PainPoint {
+    id: number;
     name: string;
-    slug: string;
     category?: string;
-    mentions: number;
+    mention_count: number;
 }
 
 interface Props extends PageProps {
@@ -60,7 +60,7 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) =>
     };
 
     const handleExportReviews = () => {
-        router.post(`/customer/export/apps/${app.id}/reviews`);
+        router.post(`/customer/export/reviews/${app.id}`);
     };
 
     const reviewColumns: Column<StoreReview>[] = [
@@ -126,16 +126,16 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) =>
                                     {app.name}
                                 </h1>
                                 {app.category && (
-                                    <Badge color="primary">{app.category}</Badge>
+                                    <Badge color="primary">{typeof app.category === 'object' ? app.category.name : app.category}</Badge>
                                 )}
                             </div>
                             <p className="text-sm text-gray-500">{app.developer_name}</p>
 
                             <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
-                                {app.average_rating > 0 && (
+                                {Number(app.average_rating) > 0 && (
                                     <span>
                                         <span className="font-medium">
-                                            {app.average_rating.toFixed(1)}
+                                            {Number(app.average_rating).toFixed(1)}
                                         </span>{' '}
                                         ★
                                     </span>
@@ -196,11 +196,10 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) =>
                         <ul className="divide-y divide-gray-100">
                             {painPoints.map((pp) => (
                                 <li
-                                    key={pp.slug}
+                                    key={pp.id}
                                     className="flex items-center justify-between py-3"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <Badge color="gray">{pp.slug}</Badge>
                                         <span className="text-sm font-medium text-gray-900">
                                             {pp.name}
                                         </span>
@@ -209,7 +208,7 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) =>
                                         )}
                                     </div>
                                     <span className="text-sm text-gray-500">
-                                        {pp.mentions} mentions
+                                        {pp.mention_count} mentions
                                     </span>
                                 </li>
                             ))}
