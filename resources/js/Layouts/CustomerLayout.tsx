@@ -11,7 +11,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
     {
-        href: '/customer/dashboard',
+        href: '/customer',
         label: 'Dashboard',
         icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
     },
@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
 ];
 
 const Logo: React.FC = () => (
-    <a href="/customer/dashboard" className="flex items-center gap-2">
+    <a href="/customer" className="flex items-center gap-2">
         <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white font-bold text-sm">
             H
         </span>

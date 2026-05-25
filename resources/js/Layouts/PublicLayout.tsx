@@ -53,7 +53,7 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
                         <div className="flex items-center gap-3">
                             {isLoggedIn ? (
                                 <a
-                                    href="/customer/dashboard"
+                                    href="/customer"
                                     className="inline-flex items-center justify-center rounded-lg bg-amber-500 hover:bg-amber-600 px-4 py-2 text-sm font-medium text-white border border-amber-500 hover:border-amber-600 transition-colors duration-150"
                                 >
                                     Dashboard
