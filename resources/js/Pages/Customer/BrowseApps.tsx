@@ -14,8 +14,8 @@ import { ShopifyApp, PaginatedResponse } from '@/types/models';
 interface Props extends PageProps {
     apps: PaginatedResponse<ShopifyApp>;
     followedIds: number[];
-    categories: Record<number, string>;
-    painPointOptions: { value: string; label: string }[];
+    categories: { id: number; name: string }[];
+    painPointOptions: { id: number; name: string }[];
     filters: Record<string, string>;
 }
 
@@ -66,7 +66,7 @@ const BrowseApps: React.FC<Props> = ({
             label: 'Category',
             render: (row) =>
                 row.category ? (
-                    <Badge color="gray">{row.category}</Badge>
+                    <Badge color="gray">{typeof row.category === 'object' ? row.category.name : row.category}</Badge>
                 ) : (
                     <span className="text-gray-400">—</span>
                 ),
@@ -75,13 +75,14 @@ const BrowseApps: React.FC<Props> = ({
             key: 'average_rating',
             label: 'Rating',
             sortable: true,
-            render: (row) => (
-                <Badge color={ratingColor(row.average_rating)}>
-                    {row.average_rating > 0
-                        ? row.average_rating.toFixed(1)
-                        : '—'}
-                </Badge>
-            ),
+            render: (row) => {
+                const rating = Number(row.average_rating);
+                return (
+                    <Badge color={ratingColor(rating)}>
+                        {rating > 0 ? rating.toFixed(1) : '—'}
+                    </Badge>
+                );
+            },
         },
         {
             key: 'total_reviews',
@@ -100,9 +101,9 @@ const BrowseApps: React.FC<Props> = ({
         },
     ];
 
-    const categoryOptions = Object.entries(categories).map(([id, name]) => ({
-        value: id,
-        label: name,
+    const categoryOptions = categories.map((cat) => ({
+        value: String(cat.id),
+        label: cat.name,
     }));
 
     const tableFilters: FilterConfig[] = [

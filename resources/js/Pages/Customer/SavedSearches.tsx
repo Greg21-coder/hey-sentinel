@@ -11,7 +11,7 @@ import { PageProps } from '@/types';
 import { SavedSearch } from '@/types/models';
 
 interface Props extends PageProps {
-    searches: SavedSearch[];
+    savedSearches: SavedSearch[];
 }
 
 const SavedSearchCard: React.FC<{ search: SavedSearch }> = ({ search }) => {
@@ -163,13 +163,13 @@ const SavedSearchCard: React.FC<{ search: SavedSearch }> = ({ search }) => {
     );
 };
 
-const SavedSearches: React.FC<Props> = ({ searches }) => {
+const SavedSearches: React.FC<Props> = ({ savedSearches }) => {
     const { featureGates } = usePage<PageProps>().props;
     const savedSearchGate = featureGates?.saved_searches;
     const atLimit =
         savedSearchGate &&
         typeof savedSearchGate.value === 'number' &&
-        searches.length >= savedSearchGate.value;
+        savedSearches.length >= savedSearchGate.value;
 
     return (
         <CustomerLayout>
@@ -192,7 +192,7 @@ const SavedSearches: React.FC<Props> = ({ searches }) => {
                     <UpgradePrompt feature="More saved searches" />
                 )}
 
-                {searches.length === 0 ? (
+                {savedSearches.length === 0 ? (
                     <Card>
                         <div className="py-10 text-center text-sm text-gray-400">
                             No saved searches yet.{' '}
@@ -207,7 +207,7 @@ const SavedSearches: React.FC<Props> = ({ searches }) => {
                     </Card>
                 ) : (
                     <div className="space-y-4">
-                        {searches.map((search) => (
+                        {savedSearches.map((search) => (
                             <SavedSearchCard key={search.id} search={search} />
                         ))}
                     </div>
