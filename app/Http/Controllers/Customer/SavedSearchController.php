@@ -20,7 +20,7 @@ class SavedSearchController extends Controller
             ->orderByDesc('updated_at')
             ->get();
 
-        return Inertia::render('Customer/SavedSearches/Index', [
+        return Inertia::render('Customer/SavedSearches', [
             'savedSearches' => $searches,
         ]);
     }

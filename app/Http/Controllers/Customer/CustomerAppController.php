@@ -47,7 +47,7 @@ class CustomerAppController extends Controller
 
         $painPointOptions = AiPainPoint::orderBy('name')->get(['id', 'name']);
 
-        return Inertia::render('Customer/Apps/Index', [
+        return Inertia::render('Customer/BrowseApps', [
             'apps'             => $apps,
             'followedIds'      => $followedIds,
             'categories'       => $categories,
@@ -82,7 +82,7 @@ class CustomerAppController extends Controller
             ->limit(20)
             ->get();
 
-        return Inertia::render('Customer/Apps/Show', [
+        return Inertia::render('Customer/AppDetail', [
             'app'        => $shopifyApp,
             'isFollowed' => $isFollowed,
             'reviews'    => $reviews,
