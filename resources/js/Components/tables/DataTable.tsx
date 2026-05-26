@@ -405,7 +405,7 @@ function DataTable<T extends { id: number | string }>({
                                 onClick={handlePrev}
                                 disabled={current === 1}
                             >
-                                &larr;
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                             </Button>
                             {pages.map((p, i) =>
                                 p === '...' ? (
@@ -431,7 +431,7 @@ function DataTable<T extends { id: number | string }>({
                                 onClick={handleNext}
                                 disabled={current === last}
                             >
-                                &rarr;
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                             </Button>
                         </div>
                     </div>
