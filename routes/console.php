@@ -9,6 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 // HeySentinel — scraping pipeline (Tier 0 conservative cadence).
+Schedule::command('app:discover:apps')->twiceDaily(2, 14)->withoutOverlapping();
 Schedule::command('app:webshare:refresh')->dailyAt('03:00')->withoutOverlapping();
 Schedule::command('app:scrape:apps --limit=300')->dailyAt('04:00')->withoutOverlapping();
 Schedule::command('app:scrape:reviews --pages=3')->everySixHours()->withoutOverlapping();

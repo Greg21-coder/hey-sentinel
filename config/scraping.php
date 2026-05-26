@@ -13,6 +13,11 @@ return [
         'base_url' => env('STORELEADS_BASE_URL', 'https://storeleads.app/json/api'),
     ],
 
+    'discovery' => [
+        'sitemap_url' => env('DISCOVERY_SITEMAP_URL', 'https://apps.shopify.com/sitemap_apps_en.xml'),
+        'default_limit' => (int) env('DISCOVERY_DEFAULT_LIMIT', 500),
+    ],
+
     'defaults' => [
         'app_limit' => (int) env('SCRAPING_DEFAULT_APP_LIMIT', 300),
         'concurrent_jobs' => (int) env('SCRAPING_CONCURRENT_JOBS', 5),
