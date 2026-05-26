@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminAccountController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminDiscoveryController;
 use App\Http\Controllers\Admin\AdminPainPointsController;
 use App\Http\Controllers\Admin\AdminPlanController;
 use App\Http\Controllers\Admin\AdminShopifyAppController;
@@ -58,4 +59,6 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSuperAdmin::class])
         Route::post('/shopify-stores/{shopifyStore}/relist', [AdminShopifyStoreController::class, 'relist'])->name('shopify-stores.relist');
         Route::get('/store-reviews', [AdminStoreReviewController::class, 'index'])->name('store-reviews.index');
         Route::get('/pain-points', AdminPainPointsController::class)->name('pain-points');
+        Route::get('/discovery', [AdminDiscoveryController::class, 'index'])->name('discovery.index');
+        Route::post('/discovery/run', [AdminDiscoveryController::class, 'run'])->name('discovery.run');
     });
