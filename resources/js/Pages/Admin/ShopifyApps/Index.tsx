@@ -15,6 +15,7 @@ interface AppRow {
     id: number;
     name: string;
     developer_name: string;
+    avatar_url: string | null;
     average_rating: number;
     total_reviews: number;
     scraping_status: string;
@@ -46,6 +47,18 @@ export default function ShopifyAppsIndex({ apps, filters }: Props) {
     };
 
     const columns: Column<AppRow>[] = [
+        {
+            key: 'avatar_url',
+            label: '',
+            render: (row) =>
+                row.avatar_url ? (
+                    <img src={row.avatar_url} alt={row.name} className="w-8 h-8 rounded-lg object-cover" />
+                ) : (
+                    <div className="w-8 h-8 rounded-lg bg-surface-200 flex items-center justify-center text-surface-500 text-xs font-bold">
+                        {row.name.charAt(0)}
+                    </div>
+                ),
+        },
         { key: 'name', label: 'Name', sortable: true },
         { key: 'developer_name', label: 'Developer' },
         {

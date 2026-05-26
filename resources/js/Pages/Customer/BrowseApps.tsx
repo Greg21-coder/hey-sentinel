@@ -44,6 +44,18 @@ const BrowseApps: React.FC<Props> = ({
 
     const columns: Column<ShopifyApp>[] = [
         {
+            key: 'avatar_url',
+            label: '',
+            render: (row) =>
+                row.avatar_url ? (
+                    <img src={row.avatar_url} alt={row.name} className="w-8 h-8 rounded-lg object-cover" />
+                ) : (
+                    <div className="w-8 h-8 rounded-lg bg-surface-200 flex items-center justify-center text-surface-500 text-xs font-bold">
+                        {row.name.charAt(0)}
+                    </div>
+                ),
+        },
+        {
             key: 'name',
             label: 'App',
             sortable: true,
