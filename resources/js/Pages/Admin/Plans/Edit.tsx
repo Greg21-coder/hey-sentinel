@@ -215,8 +215,8 @@ export default function PlanEdit({ plan, features }: Props) {
                                                     />
                                                 </td>
                                                 <td className="px-4 py-2 text-right whitespace-nowrap">
-                                                    <button onClick={handleUpdateFeature} className="text-sm text-green-600 hover:text-green-800 mr-2">Save</button>
-                                                    <button onClick={() => setEditingFeature(null)} className="text-sm text-gray-500 hover:text-gray-700">Cancel</button>
+                                                    <button onClick={handleUpdateFeature} className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-shopify-50 text-shopify-700 hover:bg-shopify-100 mr-2">Save</button>
+                                                    <button onClick={() => setEditingFeature(null)} className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-surface-200 text-surface-700 hover:bg-surface-300">Cancel</button>
                                                 </td>
                                             </>
                                         ) : (
@@ -225,8 +225,8 @@ export default function PlanEdit({ plan, features }: Props) {
                                                 <td className="px-4 py-3 text-gray-700">{feat.feature_value}</td>
                                                 <td className="px-4 py-3 text-gray-500">{feat.value_type}</td>
                                                 <td className="px-4 py-3 text-right whitespace-nowrap">
-                                                    <button onClick={() => setEditingFeature(feat)} className="text-sm text-shopify-500 hover:text-shopify-700 mr-2">Edit</button>
-                                                    <button onClick={() => handleDeleteFeature(feat.id)} className="text-sm text-red-600 hover:text-red-800">Remove</button>
+                                                    <button onClick={() => setEditingFeature(feat)} className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-shopify-50 text-shopify-700 hover:bg-shopify-100 mr-2">Edit</button>
+                                                    <button onClick={() => handleDeleteFeature(feat.id)} className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-red-50 text-red-700 hover:bg-red-100">Remove</button>
                                                 </td>
                                             </>
                                         )}
