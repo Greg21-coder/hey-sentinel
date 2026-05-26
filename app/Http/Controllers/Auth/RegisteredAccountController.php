@@ -15,15 +15,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RegisteredAccountController extends Controller
 {
-    public function create(): View
+    public function create(): Response
     {
         $plan = request('plan');
 
-        return view('auth.register', [
+        return Inertia::render('Auth/Register', [
             'preselectedPlan' => $plan,
             'plans' => Plan::query()->public()->active()->orderBy('sort_order')->get(['id', 'slug', 'name', 'monthly_price']),
         ]);
@@ -68,6 +69,6 @@ class RegisteredAccountController extends Controller
             ]);
         });
 
-        return redirect()->to('/admin/login')->with('status', 'Account created. Please log in.');
+        return redirect()->to('/login')->with('success', 'Account created! Please log in.');
     }
 }

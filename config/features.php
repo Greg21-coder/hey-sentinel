@@ -5,6 +5,7 @@ return [
     'saved_searches',
     'alerts',
     'export_csv',
+    'review_velocity',
     'team_members',
     'api_access',
     'white_label',
