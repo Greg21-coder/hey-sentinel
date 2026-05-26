@@ -366,46 +366,77 @@ function DataTable<T extends { id: number | string }>({
             </div>
 
             {/* Pagination */}
-            {meta && meta.last_page > 1 && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600">
-                        {meta.from !== null && meta.to !== null ? (
-                            <>
-                                Showing{' '}
-                                <span className="font-medium">{meta.from}</span> to{' '}
-                                <span className="font-medium">{meta.to}</span> of{' '}
-                                <span className="font-medium">{meta.total}</span>{' '}
-                                results
-                            </>
-                        ) : (
-                            `Page ${meta.current_page} of ${meta.last_page}`
-                        )}
-                    </p>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={handlePrev}
-                            disabled={
-                                !links?.prev || meta.current_page === 1
-                            }
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={handleNext}
-                            disabled={
-                                !links?.next ||
-                                meta.current_page === meta.last_page
-                            }
-                        >
-                            Next
-                        </Button>
+            {meta && meta.last_page > 1 && (() => {
+                const current = meta.current_page;
+                const last = meta.last_page;
+                const pages: (number | '...')[] = [];
+
+                if (last <= 7) {
+                    for (let i = 1; i <= last; i++) pages.push(i);
+                } else {
+                    pages.push(1);
+                    if (current > 3) pages.push('...');
+                    const start = Math.max(2, current - 1);
+                    const end = Math.min(last - 1, current + 1);
+                    for (let i = start; i <= end; i++) pages.push(i);
+                    if (current < last - 2) pages.push('...');
+                    pages.push(last);
+                }
+
+                return (
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-600">
+                            {meta.from !== null && meta.to !== null ? (
+                                <>
+                                    Showing{' '}
+                                    <span className="font-medium">{meta.from}</span> to{' '}
+                                    <span className="font-medium">{meta.to}</span> of{' '}
+                                    <span className="font-medium">{meta.total}</span>{' '}
+                                    results
+                                </>
+                            ) : (
+                                `Page ${current} of ${last}`
+                            )}
+                        </p>
+                        <div className="flex items-center gap-1">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handlePrev}
+                                disabled={current === 1}
+                            >
+                                &larr;
+                            </Button>
+                            {pages.map((p, i) =>
+                                p === '...' ? (
+                                    <span key={`ellipsis-${i}`} className="px-2 text-sm text-gray-400">...</span>
+                                ) : (
+                                    <button
+                                        key={p}
+                                        onClick={() => navigate({ page: String(p) })}
+                                        className={[
+                                            'min-w-[32px] px-2 py-1 text-sm font-medium rounded-md',
+                                            p === current
+                                                ? 'bg-shopify-500 text-white'
+                                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+                                        ].join(' ')}
+                                    >
+                                        {p}
+                                    </button>
+                                )
+                            )}
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleNext}
+                                disabled={current === last}
+                            >
+                                &rarr;
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            )}
+                );
+            })()}
         </div>
     );
 }
