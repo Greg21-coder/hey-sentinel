@@ -27,6 +27,19 @@ export interface PaginationLinks {
     next: string | null;
 }
 
+export interface LaravelPagination<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    from: number | null;
+    to: number | null;
+    total: number;
+    per_page: number;
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    [key: string]: unknown;
+}
+
 export type FilterType = 'text' | 'select' | 'toggle';
 
 export interface FilterConfig {
@@ -38,7 +51,8 @@ export interface FilterConfig {
 
 interface DataTableProps<T extends { id: number | string }> {
     columns: Column<T>[];
-    data: T[];
+    data?: T[];
+    pagination?: LaravelPagination<T>;
     meta?: PaginationMeta;
     links?: PaginationLinks;
     filters?: FilterConfig[];
@@ -104,9 +118,10 @@ const SortIcon: React.FC<{ direction?: 'asc' | 'desc' | null }> = ({
 
 function DataTable<T extends { id: number | string }>({
     columns,
-    data,
-    meta,
-    links,
+    data: dataProp,
+    pagination,
+    meta: metaProp,
+    links: linksProp,
     filters = [],
     currentFilters = {},
     currentSort,
@@ -114,6 +129,19 @@ function DataTable<T extends { id: number | string }>({
     rowActions,
     emptyMessage = 'No records found.',
 }: DataTableProps<T>) {
+    const data = dataProp ?? pagination?.data ?? [];
+    const meta: PaginationMeta | undefined = metaProp ?? (pagination ? {
+        current_page: pagination.current_page,
+        last_page: pagination.last_page,
+        from: pagination.from,
+        to: pagination.to,
+        total: pagination.total,
+        per_page: pagination.per_page,
+    } : undefined);
+    const links: PaginationLinks | undefined = linksProp ?? (pagination ? {
+        prev: pagination.prev_page_url,
+        next: pagination.next_page_url,
+    } : undefined);
     const navigate = (params: Record<string, string | undefined>) => {
         const merged: Record<string, string> = {};
         for (const [k, v] of Object.entries({

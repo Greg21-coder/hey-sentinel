@@ -129,19 +129,16 @@ export interface FeatureGate {
 
 export interface PaginatedResponse<T> {
     data: T[];
-    links: {
-        first: string | null;
-        last: string | null;
-        prev: string | null;
-        next: string | null;
-    };
-    meta: {
-        current_page: number;
-        from: number | null;
-        last_page: number;
-        path: string;
-        per_page: number;
-        to: number | null;
-        total: number;
-    };
+    current_page: number;
+    from: number | null;
+    last_page: number;
+    per_page: number;
+    to: number | null;
+    total: number;
+    path: string;
+    first_page_url: string | null;
+    last_page_url: string | null;
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    links: { url: string | null; label: string; active: boolean }[];
 }

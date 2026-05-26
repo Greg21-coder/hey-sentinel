@@ -226,9 +226,7 @@ const BrowseApps: React.FC<Props> = ({
                 <Card>
                     <DataTable
                         columns={columns}
-                        data={apps.data}
-                        meta={apps.meta}
-                        links={apps.links}
+                        pagination={apps}
                         filters={tableFilters}
                         currentFilters={filters}
                         rowActions={(row) =>

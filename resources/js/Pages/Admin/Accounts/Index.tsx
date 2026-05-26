@@ -99,9 +99,7 @@ export default function AccountsIndex({ accounts, filters }: Props) {
 
                 <DataTable
                     columns={columns}
-                    data={accounts.data}
-                    meta={accounts.meta}
-                    links={accounts.links}
+                    pagination={accounts}
                     filters={[
                         {
                             key: 'status',

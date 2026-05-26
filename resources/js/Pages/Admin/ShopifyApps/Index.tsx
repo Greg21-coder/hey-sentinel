@@ -128,9 +128,7 @@ export default function ShopifyAppsIndex({ apps, filters }: Props) {
 
                 <DataTable
                     columns={columns}
-                    data={apps.data}
-                    meta={apps.meta}
-                    links={apps.links}
+                    pagination={apps}
                     filters={[
                         { key: 'search', label: 'Search', type: 'text' },
                         { key: 'show_unlisted', label: 'Show Unlisted', type: 'toggle' },

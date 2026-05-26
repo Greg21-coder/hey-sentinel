@@ -167,9 +167,7 @@ export default function DiscoveryIndex({ stats, runs, hasRunning }: Props) {
                 {/* History table */}
                 <DataTable
                     columns={columns}
-                    data={runs.data}
-                    meta={runs.meta}
-                    links={runs.links}
+                    pagination={runs}
                     emptyMessage="No discovery runs yet. Click 'Run Discovery Now' to start."
                 />
             </div>

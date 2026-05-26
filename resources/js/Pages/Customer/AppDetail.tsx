@@ -238,9 +238,7 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) =>
 
                         <DataTable
                             columns={reviewColumns}
-                            data={reviews.data}
-                            meta={reviews.meta}
-                            links={reviews.links}
+                            pagination={reviews}
                             emptyMessage="No reviews found for this app."
                         />
                     </div>

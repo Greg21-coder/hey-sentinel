@@ -94,9 +94,7 @@ export default function StoreReviewsIndex({ reviews, apps, filters }: Props) {
 
                 <DataTable
                     columns={columns}
-                    data={reviews.data}
-                    meta={reviews.meta}
-                    links={reviews.links}
+                    pagination={reviews}
                     filters={[
                         {
                             key: 'shopify_app_id',

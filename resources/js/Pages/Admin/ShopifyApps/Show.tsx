@@ -189,9 +189,7 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                 <Card title="Reviews">
                     <DataTable
                         columns={reviewColumns}
-                        data={reviews.data}
-                        meta={reviews.meta}
-                        links={reviews.links}
+                        pagination={reviews}
                     />
                 </Card>
             </div>
