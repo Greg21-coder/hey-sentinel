@@ -23,6 +23,7 @@ return [
         'concurrent_jobs' => (int) env('SCRAPING_CONCURRENT_JOBS', 5),
         'jitter_min_ms' => (int) env('SCRAPING_JITTER_MIN_MS', 200),
         'jitter_max_ms' => (int) env('SCRAPING_JITTER_MAX_MS', 800),
+        'review_pages_per_app' => (int) env('SCRAPING_REVIEW_PAGES', 3),
     ],
 
     'user_agents' => [
