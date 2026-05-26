@@ -39,6 +39,7 @@ const BrowseApps: React.FC<Props> = ({
     const [saveModalOpen, setSaveModalOpen] = useState(false);
     const [searchName, setSearchName] = useState('');
     const [savingSearch, setSavingSearch] = useState(false);
+    const [summaryModal, setSummaryModal] = useState<{ name: string; text: string } | null>(null);
 
     const followedSet = new Set(followedIds);
 
@@ -101,6 +102,21 @@ const BrowseApps: React.FC<Props> = ({
             label: 'Reviews',
             sortable: true,
             render: (row) => row.total_reviews.toLocaleString(),
+        },
+        {
+            key: 'ai_summary',
+            label: 'AI Summary',
+            render: (row) =>
+                row.ai_summary ? (
+                    <button
+                        onClick={() => setSummaryModal({ name: row.name, text: row.ai_summary! })}
+                        className="text-left text-xs text-surface-600 line-clamp-2 max-w-[200px] hover:text-surface-900 cursor-pointer"
+                    >
+                        {row.ai_summary.length > 80 ? row.ai_summary.slice(0, 80) + '…' : row.ai_summary}
+                    </button>
+                ) : (
+                    <span className="text-gray-400 text-xs">—</span>
+                ),
         },
         {
             key: 'pricing_min_usd',
@@ -272,6 +288,18 @@ const BrowseApps: React.FC<Props> = ({
                     </div>
                 </div>
             </Modal>
+
+            {summaryModal && (
+                <Modal
+                    open={true}
+                    onClose={() => setSummaryModal(null)}
+                    title={`AI Summary — ${summaryModal.name}`}
+                >
+                    <div className="text-sm text-surface-700 leading-relaxed whitespace-pre-wrap">
+                        {summaryModal.text}
+                    </div>
+                </Modal>
+            )}
         </CustomerLayout>
     );
 };

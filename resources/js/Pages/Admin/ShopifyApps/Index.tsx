@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import DataTable, { Column } from '@/Components/tables/DataTable';
 import Badge from '@/Components/ui/Badge';
+import Modal from '@/Components/ui/Modal';
 import { PageProps, PaginatedResponse } from '@/types';
 
 interface Category {
@@ -16,6 +17,7 @@ interface AppRow {
     name: string;
     developer_name: string;
     avatar_url: string | null;
+    ai_summary: string | null;
     average_rating: number;
     total_reviews: number;
     scraping_status: string;
@@ -38,6 +40,8 @@ const scrapingStatusColor = (status: string): 'success' | 'warning' | 'danger' |
 };
 
 export default function ShopifyAppsIndex({ apps, filters }: Props) {
+    const [summaryModal, setSummaryModal] = useState<{ name: string; text: string } | null>(null);
+
     const handleUnlist = (id: number) => {
         router.post(`/admin/shopify-apps/${id}/unlist`, {}, { preserveScroll: true });
     };
@@ -80,6 +84,21 @@ export default function ShopifyAppsIndex({ apps, filters }: Props) {
             key: 'total_reviews',
             label: 'Reviews',
             render: (row) => row.total_reviews.toLocaleString(),
+        },
+        {
+            key: 'ai_summary',
+            label: 'AI Summary',
+            render: (row) =>
+                row.ai_summary ? (
+                    <button
+                        onClick={() => setSummaryModal({ name: row.name, text: row.ai_summary! })}
+                        className="text-left text-xs text-surface-600 line-clamp-2 max-w-[200px] hover:text-surface-900 cursor-pointer"
+                    >
+                        {row.ai_summary.length > 80 ? row.ai_summary.slice(0, 80) + '…' : row.ai_summary}
+                    </button>
+                ) : (
+                    <span className="text-gray-400 text-xs">—</span>
+                ),
         },
         {
             key: 'scraping_status',
@@ -147,6 +166,18 @@ export default function ShopifyAppsIndex({ apps, filters }: Props) {
                     )}
                 />
             </div>
+
+            {summaryModal && (
+                <Modal
+                    open={true}
+                    onClose={() => setSummaryModal(null)}
+                    title={`AI Summary — ${summaryModal.name}`}
+                >
+                    <div className="text-sm text-surface-700 leading-relaxed whitespace-pre-wrap">
+                        {summaryModal.text}
+                    </div>
+                </Modal>
+            )}
         </AdminLayout>
     );
 }
