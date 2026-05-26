@@ -51,6 +51,7 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSuperAdmin::class])
         Route::resource('users', AdminUserController::class);
         Route::resource('plans', AdminPlanController::class);
         Route::get('/shopify-apps', [AdminShopifyAppController::class, 'index'])->name('shopify-apps.index');
+        Route::post('/shopify-apps/scrape', [AdminShopifyAppController::class, 'scrape'])->name('shopify-apps.scrape');
         Route::get('/shopify-apps/{shopifyApp}', [AdminShopifyAppController::class, 'show'])->name('shopify-apps.show');
         Route::post('/shopify-apps/{shopifyApp}/unlist', [AdminShopifyAppController::class, 'unlist'])->name('shopify-apps.unlist');
         Route::post('/shopify-apps/{shopifyApp}/relist', [AdminShopifyAppController::class, 'relist'])->name('shopify-apps.relist');

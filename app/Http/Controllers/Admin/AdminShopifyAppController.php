@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ScrapingStatus;
 use App\Http\Controllers\Controller;
+use App\Jobs\Scraping\ScrapeAppPageJob;
 use App\Models\ShopifyApp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,6 +37,7 @@ class AdminShopifyAppController extends Controller
         return Inertia::render('Admin/ShopifyApps/Index', [
             'apps'    => $apps,
             'filters' => $request->only(['search', 'category_id', 'show_unlisted']),
+            'pendingCount' => ShopifyApp::where('scraping_status', ScrapingStatus::Pending->value)->count(),
         ]);
     }
 
@@ -61,6 +64,27 @@ class AdminShopifyAppController extends Controller
             'reviews'    => $reviews,
             'painPoints' => $painPoints,
         ]);
+    }
+
+    public function scrape(): RedirectResponse
+    {
+        $pending = ShopifyApp::where('scraping_status', ScrapingStatus::Pending->value)
+            ->orWhere('scraping_status', ScrapingStatus::Error->value)
+            ->pluck('shopify_app_handle');
+
+        if ($pending->isEmpty()) {
+            return back()->with('success', 'No pending apps to scrape.');
+        }
+
+        $delaySeconds = 0;
+        $pending->chunk(200)->each(function ($chunk) use (&$delaySeconds) {
+            foreach ($chunk as $handle) {
+                ScrapeAppPageJob::dispatch($handle)->delay(now()->addSeconds($delaySeconds));
+            }
+            $delaySeconds += 60;
+        });
+
+        return back()->with('success', "Enqueued {$pending->count()} apps for scraping in chunks of 200.");
     }
 
     public function unlist(int $shopifyApp): RedirectResponse
