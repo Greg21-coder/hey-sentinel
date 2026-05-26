@@ -66,25 +66,31 @@ class AdminShopifyAppController extends Controller
         ]);
     }
 
-    public function scrape(): RedirectResponse
+    public function scrape(Request $request): RedirectResponse
     {
-        $pending = ShopifyApp::where('scraping_status', ScrapingStatus::Pending->value)
-            ->orWhere('scraping_status', ScrapingStatus::Error->value)
-            ->pluck('shopify_app_handle');
+        $ids = $request->input('ids', []);
 
-        if ($pending->isEmpty()) {
-            return back()->with('success', 'No pending apps to scrape.');
+        if (!empty($ids)) {
+            $handles = ShopifyApp::whereIn('id', $ids)->pluck('shopify_app_handle');
+        } else {
+            $handles = ShopifyApp::where('scraping_status', ScrapingStatus::Pending->value)
+                ->orWhere('scraping_status', ScrapingStatus::Error->value)
+                ->pluck('shopify_app_handle');
+        }
+
+        if ($handles->isEmpty()) {
+            return back()->with('success', 'No apps to scrape.');
         }
 
         $delaySeconds = 0;
-        $pending->chunk(200)->each(function ($chunk) use (&$delaySeconds) {
+        $handles->chunk(200)->each(function ($chunk) use (&$delaySeconds) {
             foreach ($chunk as $handle) {
                 ScrapeAppPageJob::dispatch($handle)->delay(now()->addSeconds($delaySeconds));
             }
             $delaySeconds += 60;
         });
 
-        return back()->with('success', "Enqueued {$pending->count()} apps for scraping in chunks of 200.");
+        return back()->with('success', "Enqueued {$handles->count()} apps for scraping in chunks of 200.");
     }
 
     public function unlist(int $shopifyApp): RedirectResponse

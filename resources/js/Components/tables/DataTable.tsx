@@ -60,6 +60,7 @@ interface DataTableProps<T extends { id: number | string }> {
     currentSort?: string;
     currentDirection?: 'asc' | 'desc';
     rowActions?: (row: T) => ReactNode;
+    headerCheckbox?: { checked: boolean; onChange: () => void };
     emptyMessage?: string;
 }
 
@@ -127,6 +128,7 @@ function DataTable<T extends { id: number | string }>({
     currentSort,
     currentDirection,
     rowActions,
+    headerCheckbox,
     emptyMessage = 'No records found.',
 }: DataTableProps<T>) {
     const data = dataProp ?? pagination?.data ?? [];
@@ -286,18 +288,27 @@ function DataTable<T extends { id: number | string }>({
                                             : undefined
                                     }
                                 >
-                                    <span className="inline-flex items-center">
-                                        {col.label}
-                                        {col.sortable && (
-                                            <SortIcon
-                                                direction={
-                                                    currentSort === String(col.key)
-                                                        ? currentDirection ?? null
-                                                        : null
-                                                }
-                                            />
-                                        )}
-                                    </span>
+                                    {headerCheckbox && String(col.key) === 'select' ? (
+                                        <input
+                                            type="checkbox"
+                                            className="h-4 w-4 rounded border-gray-300 text-shopify-500 focus:ring-shopify-500"
+                                            checked={headerCheckbox.checked}
+                                            onChange={headerCheckbox.onChange}
+                                        />
+                                    ) : (
+                                        <span className="inline-flex items-center">
+                                            {col.label}
+                                            {col.sortable && (
+                                                <SortIcon
+                                                    direction={
+                                                        currentSort === String(col.key)
+                                                            ? currentDirection ?? null
+                                                            : null
+                                                    }
+                                                />
+                                            )}
+                                        </span>
+                                    )}
                                 </th>
                             ))}
                             {hasRowActions && (

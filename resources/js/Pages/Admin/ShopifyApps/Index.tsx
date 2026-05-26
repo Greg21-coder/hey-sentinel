@@ -43,6 +43,38 @@ const scrapingStatusColor = (status: string): 'success' | 'warning' | 'danger' |
 
 export default function ShopifyAppsIndex({ apps, filters, pendingCount }: Props) {
     const [summaryModal, setSummaryModal] = useState<{ name: string; text: string } | null>(null);
+    const [selected, setSelected] = useState<Set<number>>(new Set());
+
+    const toggleSelect = (id: number) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+    };
+
+    const toggleAll = () => {
+        const pageIds = apps.data.map((r) => r.id);
+        const allSelected = pageIds.every((id) => selected.has(id));
+        setSelected((prev) => {
+            const next = new Set(prev);
+            pageIds.forEach((id) => (allSelected ? next.delete(id) : next.add(id)));
+            return next;
+        });
+    };
+
+    const hasSelection = selected.size > 0;
+    const scrapeLabel = hasSelection
+        ? `Scrape Selected (${selected.size.toLocaleString()})`
+        : `Scrape Pending (${pendingCount.toLocaleString()})`;
+
+    const handleScrape = () => {
+        const payload = hasSelection ? { ids: Array.from(selected) } : {};
+        router.post('/admin/shopify-apps/scrape', payload, {
+            preserveScroll: true,
+            onSuccess: () => setSelected(new Set()),
+        });
+    };
 
     const handleUnlist = (id: number) => {
         router.post(`/admin/shopify-apps/${id}/unlist`, {}, { preserveScroll: true });
@@ -52,7 +84,22 @@ export default function ShopifyAppsIndex({ apps, filters, pendingCount }: Props)
         router.post(`/admin/shopify-apps/${id}/relist`, {}, { preserveScroll: true });
     };
 
+    const pageIds = apps.data.map((r) => r.id);
+    const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+
     const columns: Column<AppRow>[] = [
+        {
+            key: 'select',
+            label: '',
+            render: (row) => (
+                <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-shopify-500 focus:ring-shopify-500"
+                    checked={selected.has(row.id)}
+                    onChange={() => toggleSelect(row.id)}
+                />
+            ),
+        },
         {
             key: 'avatar_url',
             label: '',
@@ -125,15 +172,23 @@ export default function ShopifyAppsIndex({ apps, filters, pendingCount }: Props)
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold text-gray-900">Shopify Apps</h1>
-                    {pendingCount > 0 && (
-                        <Button
-                            onClick={() => router.post('/admin/shopify-apps/scrape', {}, { preserveScroll: true })}
-                        >
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-2xl font-bold text-gray-900">Shopify Apps</h1>
+                        {hasSelection && (
+                            <button
+                                onClick={() => setSelected(new Set())}
+                                className="text-xs text-gray-500 hover:text-gray-700"
+                            >
+                                Clear selection
+                            </button>
+                        )}
+                    </div>
+                    {(pendingCount > 0 || hasSelection) && (
+                        <Button onClick={handleScrape}>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                             </svg>
-                            Scrape Pending ({pendingCount.toLocaleString()})
+                            {scrapeLabel}
                         </Button>
                     )}
                 </div>
@@ -146,6 +201,10 @@ export default function ShopifyAppsIndex({ apps, filters, pendingCount }: Props)
                         { key: 'show_unlisted', label: 'Show Unlisted', type: 'toggle' },
                     ]}
                     currentFilters={filters}
+                    headerCheckbox={{
+                        checked: allPageSelected,
+                        onChange: toggleAll,
+                    }}
                     rowActions={(row) => (
                         <div className="flex items-center gap-2 justify-end">
                             <Link
