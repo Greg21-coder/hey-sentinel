@@ -63,6 +63,11 @@ const navSections: NavSection[] = [
                 label: 'Reviews',
                 icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z',
             },
+            {
+                href: '/admin/discovery',
+                label: 'Discovery',
+                icon: 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z',
+            },
         ],
     },
     {
