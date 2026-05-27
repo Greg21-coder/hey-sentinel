@@ -3,6 +3,7 @@
 namespace App\Jobs\Scraping;
 
 use App\Enums\ScrapingStatus;
+use App\Jobs\Scraping\ScrapeAppPageJob;
 use App\Models\DiscoveryRun;
 use App\Models\ShopifyApp;
 use App\Services\Scraping\ShopifySitemapParser;
@@ -36,6 +37,7 @@ class DiscoverAppsFromSitemapJob implements ShouldQueue
             $new = 0;
             $existing = 0;
             $limit = $this->run->apps_limit;
+            $newHandles = [];
 
             foreach ($handles as $handle) {
                 if ($limit !== null && $new >= $limit) {
@@ -51,7 +53,12 @@ class DiscoverAppsFromSitemapJob implements ShouldQueue
                     ]
                 );
 
-                $app->wasRecentlyCreated ? $new++ : $existing++;
+                if ($app->wasRecentlyCreated) {
+                    $new++;
+                    $newHandles[] = $handle;
+                } else {
+                    $existing++;
+                }
             }
 
             $this->run->update([
@@ -60,6 +67,14 @@ class DiscoverAppsFromSitemapJob implements ShouldQueue
                 'apps_new' => $new,
                 'apps_existing' => $existing,
             ]);
+
+            $delaySeconds = 0;
+            collect($newHandles)->chunk(200)->each(function ($chunk) use (&$delaySeconds) {
+                foreach ($chunk as $handle) {
+                    ScrapeAppPageJob::dispatch($handle)->delay(now()->addSeconds($delaySeconds));
+                }
+                $delaySeconds += 90;
+            });
         } catch (\Throwable $e) {
             $this->run->update([
                 'status' => 'failed',

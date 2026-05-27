@@ -8,13 +8,19 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-// HeySentinel — scraping pipeline (Tier 0 conservative cadence).
+// HeySentinel — integrated pipeline (discovery → scrape → reviews → AI).
+// Discovery finds new apps and auto-dispatches scraping for them.
+// ScrapeAppPageJob auto-dispatches review scraping on success.
+// ScrapeReviewPageJob auto-dispatches CompileBatchJob when new reviews arrive.
 Schedule::command('app:discover:apps')->twiceDaily(2, 14)->withoutOverlapping();
-Schedule::command('app:webshare:refresh')->dailyAt('03:00')->withoutOverlapping();
+
+// Re-scrape existing apps to keep data fresh (safety net).
 Schedule::command('app:scrape:apps --limit=300')->dailyAt('04:00')->withoutOverlapping();
-Schedule::command('app:scrape:reviews --pages=3')->everySixHours()->withoutOverlapping();
+
+// Storeleads enrichment for store data.
 Schedule::command('app:storeleads:sync --scope=reviewers')->dailyAt('05:00')->withoutOverlapping();
 
-// HeySentinel — AI pain-point extraction (Anthropic Batch API).
+// AI batch polling for async providers (Anthropic). Sync providers (Ollama)
+// are handled inline by CompileBatchJob → IngestBatchResultsJob.
 Schedule::command('app:ai:compile-batch')->cron(config('ai.schedule.compile_cron'))->withoutOverlapping();
 Schedule::command('app:ai:poll-batches')->cron(config('ai.schedule.poll_cron'))->withoutOverlapping();
