@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Scraping;
 
+use App\Jobs\Ai\CompileBatchJob;
 use App\Models\ShopifyApp;
 use App\Services\Scraping\ParsedReview;
 use App\Services\Scraping\ShopifyReviewPageParser;
@@ -19,7 +20,9 @@ class ScrapeReviewPageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 3;
+    public int $tries = 30;
+
+    public int $maxExceptions = 3;
 
     public function __construct(public int $appId, public int $page = 1) {}
 
@@ -61,6 +64,10 @@ class ScrapeReviewPageJob implements ShouldQueue
 
         if ($parsedPage->hasNextPage) {
             self::dispatch($app->id, $this->page + 1)->onQueue('scrape-reviews');
+        }
+
+        if ($inserted > 0) {
+            CompileBatchJob::dispatch()->delay(now()->addSeconds(30));
         }
 
         Log::info('ScrapeReviewPageJob success', [

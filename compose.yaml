@@ -28,7 +28,6 @@ services:
             - mailpit
     scheduler:
         image: 'sail-8.5/app'
-        profiles: ['workers']
         environment:
             WWWUSER: '${WWWUSER:-1000}'
             LARAVEL_SAIL: 1
@@ -46,7 +45,6 @@ services:
         restart: unless-stopped
     horizon:
         image: 'sail-8.5/app'
-        profiles: ['workers']
         environment:
             WWWUSER: '${WWWUSER:-1000}'
             LARAVEL_SAIL: 1

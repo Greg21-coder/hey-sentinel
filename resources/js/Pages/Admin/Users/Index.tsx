@@ -65,9 +65,7 @@ export default function UsersIndex({ users }: Props) {
 
                 <DataTable
                     columns={columns}
-                    data={users.data}
-                    meta={users.meta}
-                    links={users.links}
+                    pagination={users}
                     rowActions={(row) => (
                         <div className="flex items-center gap-2 justify-end">
                             <Link

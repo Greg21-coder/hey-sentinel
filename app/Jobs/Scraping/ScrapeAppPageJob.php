@@ -21,7 +21,9 @@ class ScrapeAppPageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries = 3;
+    public int $tries = 30;
+
+    public int $maxExceptions = 3;
 
     public int $backoff = 30;
 
@@ -59,7 +61,7 @@ class ScrapeAppPageJob implements ShouldQueue
         $parsed = $parser->parse($response->body());
         $canonicalHandle = $this->resolveCanonicalHandle($response);
 
-        ShopifyApp::updateOrCreate(
+        $app = ShopifyApp::updateOrCreate(
             ['shopify_app_handle' => $this->handle],
             [
                 'canonical_handle' => $canonicalHandle,
@@ -78,6 +80,11 @@ class ScrapeAppPageJob implements ShouldQueue
                 'last_scraped_at' => now(),
             ]
         );
+
+        $reviewPages = (int) config('scraping.defaults.review_pages_per_app', 3);
+        for ($p = 1; $p <= $reviewPages; $p++) {
+            ScrapeReviewPageJob::dispatch($app->id, $p);
+        }
 
         Log::info('ScrapeAppPageJob success', [
             'handle' => $this->handle,

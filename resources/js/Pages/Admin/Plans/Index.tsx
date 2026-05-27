@@ -75,9 +75,7 @@ export default function PlansIndex({ plans }: Props) {
 
                 <DataTable
                     columns={columns}
-                    data={plans.data}
-                    meta={plans.meta}
-                    links={plans.links}
+                    pagination={plans}
                     rowActions={(row) => (
                         <div className="flex items-center gap-2 justify-end">
                             <Link

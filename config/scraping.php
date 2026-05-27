@@ -13,11 +13,17 @@ return [
         'base_url' => env('STORELEADS_BASE_URL', 'https://storeleads.app/json/api'),
     ],
 
+    'discovery' => [
+        'sitemap_url' => env('DISCOVERY_SITEMAP_URL', 'https://apps.shopify.com/sitemap_apps_en.xml'),
+        'default_limit' => (int) env('DISCOVERY_DEFAULT_LIMIT', 500),
+    ],
+
     'defaults' => [
         'app_limit' => (int) env('SCRAPING_DEFAULT_APP_LIMIT', 300),
         'concurrent_jobs' => (int) env('SCRAPING_CONCURRENT_JOBS', 5),
         'jitter_min_ms' => (int) env('SCRAPING_JITTER_MIN_MS', 200),
         'jitter_max_ms' => (int) env('SCRAPING_JITTER_MAX_MS', 800),
+        'review_pages_per_app' => (int) env('SCRAPING_REVIEW_PAGES', 3),
     ],
 
     'user_agents' => [

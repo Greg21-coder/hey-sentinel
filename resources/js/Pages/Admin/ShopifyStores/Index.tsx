@@ -75,9 +75,7 @@ export default function ShopifyStoresIndex({ stores, filters }: Props) {
 
                 <DataTable
                     columns={columns}
-                    data={stores.data}
-                    meta={stores.meta}
-                    links={stores.links}
+                    pagination={stores}
                     filters={[
                         { key: 'search', label: 'Search', type: 'text' },
                         { key: 'show_unlisted', label: 'Show Unlisted', type: 'toggle' },

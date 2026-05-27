@@ -89,7 +89,7 @@ const BrowseApps: React.FC<Props> = ({
             label: 'Rating',
             sortable: true,
             render: (row) => {
-                const rating = Number(row.average_rating);
+                const rating = row.average_rating != null ? Number(row.average_rating) : 0;
                 return (
                     <Badge color={ratingColor(rating)}>
                         {rating > 0 ? rating.toFixed(1) : '—'}
@@ -226,9 +226,7 @@ const BrowseApps: React.FC<Props> = ({
                 <Card>
                     <DataTable
                         columns={columns}
-                        data={apps.data}
-                        meta={apps.meta}
-                        links={apps.links}
+                        pagination={apps}
                         filters={tableFilters}
                         currentFilters={filters}
                         rowActions={(row) =>
