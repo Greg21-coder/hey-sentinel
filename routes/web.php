@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\RegisteredAccountController;
 use App\Http\Controllers\Customer\CustomerAppController;
 use App\Http\Controllers\Customer\CustomerDashboardController;
 use App\Http\Controllers\Customer\ExportController;
+use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\FollowAppController;
 use App\Http\Controllers\Customer\SavedSearchController;
 use App\Http\Controllers\Customer\SettingsController;
@@ -41,6 +42,9 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::post('/export/reviews/{shopifyApp}', [ExportController::class, 'reviews'])->name('export.reviews');
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::get('/notifications/count', [NotificationController::class, 'unreadCount'])->name('notifications.count');
+    Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
+    Route::post('/notifications/mark-read', [NotificationController::class, 'markAllRead'])->name('notifications.markRead');
 });
 
 Route::middleware(['auth', \App\Http\Middleware\EnsureSuperAdmin::class])

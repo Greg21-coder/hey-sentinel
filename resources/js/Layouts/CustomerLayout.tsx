@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePage, router } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import FlashMessages from '@/Components/ui/FlashMessages';
@@ -57,6 +57,35 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     const isActive = (href: string) =>
         href === '/customer' ? url === '/customer' : url === href || url.startsWith(href + '/');
 
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [bellOpen, setBellOpen] = useState(false);
+    const [notifications, setNotifications] = useState<any[]>([]);
+
+    useEffect(() => {
+        fetch('/customer/notifications/count')
+            .then(r => r.json())
+            .then(d => setUnreadCount(d.count))
+            .catch(() => {});
+    }, [url]);
+
+    const openBell = () => {
+        if (!bellOpen) {
+            fetch('/customer/notifications/recent')
+                .then(r => r.json())
+                .then(d => { setNotifications(d.notifications); setBellOpen(true); })
+                .catch(() => {});
+        } else {
+            setBellOpen(false);
+        }
+    };
+
+    const markAllRead = () => {
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+        fetch('/customer/notifications/mark-read', { method: 'POST', headers: { 'X-CSRF-TOKEN': token, 'Content-Type': 'application/json' } })
+            .then(() => { setUnreadCount(0); setNotifications([]); setBellOpen(false); })
+            .catch(() => {});
+    };
+
     return (
         <div className="flex min-h-screen bg-surface-100">
             {/* Sidebar */}
@@ -107,18 +136,54 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                 {/* Account info + logout */}
                 <div className="border-t border-gray-100 p-4">
                     {auth.user && (
-                        <div className="mb-3">
-                            <p className="text-xs font-medium text-gray-900 truncate">
-                                {auth.user.name}
-                            </p>
-                            <p className="text-xs text-gray-500 truncate">
-                                {auth.user.email}
-                            </p>
-                            {auth.account && (
-                                <p className="text-xs text-gray-400 truncate mt-0.5">
-                                    {auth.account.name}
+                        <div className="mb-3 flex items-start justify-between">
+                            <div className="min-w-0">
+                                <p className="text-xs font-medium text-gray-900 truncate">
+                                    {auth.user.name}
                                 </p>
-                            )}
+                                <p className="text-xs text-gray-500 truncate">
+                                    {auth.user.email}
+                                </p>
+                                {auth.account && (
+                                    <p className="text-xs text-gray-400 truncate mt-0.5">
+                                        {auth.account.name}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="relative flex-shrink-0 ml-2">
+                                <button onClick={openBell} className="relative p-2 text-gray-500 hover:text-gray-700">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                                    </svg>
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+                                {bellOpen && (
+                                    <div className="absolute bottom-full left-0 mb-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+                                        <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+                                            <span className="text-sm font-semibold text-gray-900">Notifications</span>
+                                            {notifications.length > 0 && (
+                                                <button onClick={markAllRead} className="text-xs text-shopify-500 hover:underline">Mark all read</button>
+                                            )}
+                                        </div>
+                                        <div className="max-h-64 overflow-y-auto">
+                                            {notifications.length === 0 ? (
+                                                <p className="p-4 text-sm text-gray-400 text-center">No new notifications</p>
+                                            ) : (
+                                                notifications.map((n: any) => (
+                                                    <a key={n.id} href={`/customer/apps/${n.app_id}`} className="block px-3 py-2 hover:bg-gray-50 border-b border-gray-50">
+                                                        <p className="text-sm font-medium text-gray-900">{n.app_name}</p>
+                                                        <p className="text-xs text-gray-500">{n.field}: {n.old_value ?? '—'} &rarr; {n.new_value ?? '—'}</p>
+                                                    </a>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                     <form onSubmit={handleLogout}>
