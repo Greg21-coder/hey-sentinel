@@ -6,6 +6,10 @@ import Badge from '@/Components/ui/Badge';
 import Button from '@/Components/ui/Button';
 import DataTable, { Column } from '@/Components/tables/DataTable';
 import { PageProps, PaginatedResponse } from '@/types';
+import {
+    BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
+    Tooltip, ResponsiveContainer, Cell,
+} from 'recharts';
 
 interface Category {
     id: number;
@@ -49,9 +53,30 @@ interface Props extends PageProps {
     app: AppDetail;
     reviews: PaginatedResponse<Review>;
     painPoints: PainPoint[];
+    filters: Record<string, string>;
+    charts: {
+        sentimentBreakdown: Record<string, number>;
+        ratingDistribution: Record<string, number>;
+        reviewTimeline: Record<string, number>;
+    };
 }
 
-export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
+const SENTIMENT_COLORS: Record<string, string> = {
+    positive: '#008060',
+    neutral: '#64748b',
+    mixed: '#ffc453',
+    negative: '#d72c0d',
+};
+
+const RATING_COLORS: Record<number, string> = {
+    1: '#d72c0d',
+    2: '#e8590c',
+    3: '#ffc453',
+    4: '#7bc47f',
+    5: '#008060',
+};
+
+export default function ShopifyAppShow({ app, reviews, painPoints, filters, charts }: Props) {
     const handleUnlist = () => {
         router.post(`/admin/shopify-apps/${app.id}/unlist`);
     };
@@ -59,6 +84,23 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
     const handleRelist = () => {
         router.post(`/admin/shopify-apps/${app.id}/relist`);
     };
+
+    const sentimentData = Object.entries(charts.sentimentBreakdown).map(([key, value]) => ({
+        name: key.charAt(0).toUpperCase() + key.slice(1),
+        value,
+        fill: SENTIMENT_COLORS[key] ?? '#94a3b8',
+    }));
+
+    const ratingData = [1, 2, 3, 4, 5].map((r) => ({
+        name: `${r}★`,
+        value: charts.ratingDistribution[String(r)] ?? 0,
+        fill: RATING_COLORS[r],
+    }));
+
+    const timelineData = Object.entries(charts.reviewTimeline).map(([month, count]) => ({
+        month,
+        reviews: count,
+    }));
 
     const reviewColumns: Column<Review>[] = [
         {
@@ -72,6 +114,15 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
             render: (row) => `★ ${row.rating}`,
         },
         {
+            key: 'review_text',
+            label: 'Review',
+            render: (row) => (
+                <span className="text-xs text-gray-600 line-clamp-2 max-w-[300px] block">
+                    {row.review_text ? (row.review_text.length > 120 ? row.review_text.slice(0, 120) + '…' : row.review_text) : '—'}
+                </span>
+            ),
+        },
+        {
             key: 'ai_sentiment',
             label: 'Sentiment',
             render: (row) =>
@@ -82,6 +133,8 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                                 ? 'success'
                                 : row.ai_sentiment === 'negative'
                                 ? 'danger'
+                                : row.ai_sentiment === 'mixed'
+                                ? 'warning'
                                 : 'gray'
                         }
                     >
@@ -90,11 +143,6 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                 ) : (
                     <span className="text-gray-400">—</span>
                 ),
-        },
-        {
-            key: 'ai_status',
-            label: 'AI Status',
-            render: (row) => <Badge color="gray">{row.ai_status}</Badge>,
         },
         {
             key: 'published_at',
@@ -109,6 +157,7 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
             <Head title={app.name} />
 
             <div className="space-y-6">
+                {/* Header */}
                 <div className="flex items-start justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">{app.name}</h1>
@@ -119,20 +168,14 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                             Back
                         </Button>
                         {app.unlisted_at ? (
-                            <Button variant="primary" onClick={handleRelist}>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                Relist
-                            </Button>
+                            <Button variant="primary" onClick={handleRelist}>Relist</Button>
                         ) : (
-                            <Button variant="danger" onClick={handleUnlist}>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                                Unlist
-                            </Button>
+                            <Button variant="danger" onClick={handleUnlist}>Unlist</Button>
                         )}
                     </div>
                 </div>
 
-                {/* App info cards */}
+                {/* Stat Cards */}
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                         <p className="text-sm font-medium text-gray-500">Rating</p>
@@ -143,7 +186,7 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                         <p className="text-sm font-medium text-gray-500">Reviews</p>
                         <p className="mt-1 text-2xl font-bold text-gray-900">
-                            {app.total_reviews.toLocaleString()}
+                            {(app.total_reviews ?? 0).toLocaleString()}
                         </p>
                     </div>
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
@@ -161,6 +204,61 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                     </div>
                 </div>
 
+                {/* Growth Intelligence Charts */}
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    <Card title="Sentiment Breakdown">
+                        {sentimentData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height={200}>
+                                <BarChart data={sentimentData} layout="vertical" margin={{ left: 60, right: 16 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
+                                    <XAxis type="number" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                                    <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} width={60} />
+                                    <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                                        {sentimentData.map((entry, i) => (
+                                            <Cell key={i} fill={entry.fill} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <p className="text-sm text-gray-400 py-8 text-center">No sentiment data yet</p>
+                        )}
+                    </Card>
+
+                    <Card title="Rating Distribution">
+                        <ResponsiveContainer width="100%" height={200}>
+                            <BarChart data={ratingData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                                <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                                <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                                    {ratingData.map((entry, i) => (
+                                        <Cell key={i} fill={entry.fill} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Card>
+
+                    <Card title="Review Timeline (12m)">
+                        {timelineData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height={200}>
+                                <LineChart data={timelineData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                                    <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                                    <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                                    <Line type="monotone" dataKey="reviews" stroke="#008060" strokeWidth={2} dot={{ r: 3, fill: '#008060' }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <p className="text-sm text-gray-400 py-8 text-center">No timeline data yet</p>
+                        )}
+                    </Card>
+                </div>
+
                 {/* AI Summary */}
                 {app.ai_summary && (
                     <Card title="AI Summary">
@@ -168,7 +266,7 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                     </Card>
                 )}
 
-                {/* Pain points */}
+                {/* Pain Points */}
                 {painPoints.length > 0 && (
                     <Card title="Pain Points">
                         <div className="flex flex-wrap gap-2">
@@ -185,11 +283,38 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                     </Card>
                 )}
 
-                {/* Reviews table */}
+                {/* Reviews Table with Filters */}
                 <Card title="Reviews">
                     <DataTable
                         columns={reviewColumns}
                         pagination={reviews}
+                        filters={[
+                            {
+                                key: 'rating',
+                                label: 'Rating',
+                                type: 'select',
+                                options: [
+                                    { value: '1', label: '1 Star' },
+                                    { value: '2', label: '2 Stars' },
+                                    { value: '3', label: '3 Stars' },
+                                    { value: '4', label: '4 Stars' },
+                                    { value: '5', label: '5 Stars' },
+                                ],
+                            },
+                            {
+                                key: 'sentiment',
+                                label: 'Sentiment',
+                                type: 'select',
+                                options: [
+                                    { value: 'positive', label: 'Positive' },
+                                    { value: 'neutral', label: 'Neutral' },
+                                    { value: 'mixed', label: 'Mixed' },
+                                    { value: 'negative', label: 'Negative' },
+                                ],
+                            },
+                        ]}
+                        currentFilters={filters}
+                        emptyMessage="No reviews found."
                     />
                 </Card>
             </div>

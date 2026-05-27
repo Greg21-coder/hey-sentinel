@@ -8,6 +8,7 @@ use App\Jobs\Scraping\ScrapeAppPageJob;
 use App\Models\ShopifyApp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -41,15 +42,26 @@ class AdminShopifyAppController extends Controller
         ]);
     }
 
-    public function show(int $shopifyApp): Response
+    public function show(Request $request, int $shopifyApp): Response
     {
         $app = ShopifyApp::withUnlisted()->with('category')->findOrFail($shopifyApp);
 
-        $reviews = $app->reviews()
-            ->orderBy('published_at', 'desc')
-            ->paginate(15);
+        $reviewQuery = $app->reviews();
 
-        $painPoints = \Illuminate\Support\Facades\DB::table('review_pain_point')
+        if ($request->filled('rating')) {
+            $reviewQuery->where('rating', (int) $request->input('rating'));
+        }
+
+        if ($request->filled('sentiment')) {
+            $reviewQuery->where('ai_sentiment', $request->input('sentiment'));
+        }
+
+        $reviews = $reviewQuery
+            ->orderBy('published_at', 'desc')
+            ->paginate(20)
+            ->withQueryString();
+
+        $painPoints = DB::table('review_pain_point')
             ->join('ai_pain_points', 'ai_pain_points.id', '=', 'review_pain_point.pain_point_id')
             ->join('store_reviews', 'store_reviews.id', '=', 'review_pain_point.review_id')
             ->where('store_reviews.shopify_app_id', $app->id)
@@ -59,10 +71,35 @@ class AdminShopifyAppController extends Controller
             ->limit(20)
             ->get();
 
+        $sentimentBreakdown = $app->reviews()
+            ->whereNotNull('ai_sentiment')
+            ->selectRaw('ai_sentiment, COUNT(*) as count')
+            ->groupBy('ai_sentiment')
+            ->pluck('count', 'ai_sentiment');
+
+        $ratingDistribution = $app->reviews()
+            ->selectRaw('rating, COUNT(*) as count')
+            ->groupBy('rating')
+            ->orderBy('rating')
+            ->pluck('count', 'rating');
+
+        $reviewTimeline = $app->reviews()
+            ->where('published_at', '>=', now()->subMonths(12))
+            ->selectRaw("DATE_FORMAT(published_at, '%Y-%m') as month, COUNT(*) as count")
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month');
+
         return Inertia::render('Admin/ShopifyApps/Show', [
-            'app'        => $app,
-            'reviews'    => $reviews,
+            'app' => $app,
+            'reviews' => $reviews,
             'painPoints' => $painPoints,
+            'filters' => $request->only(['rating', 'sentiment']),
+            'charts' => [
+                'sentimentBreakdown' => $sentimentBreakdown,
+                'ratingDistribution' => $ratingDistribution,
+                'reviewTimeline' => $reviewTimeline,
+            ],
         ]);
     }
 

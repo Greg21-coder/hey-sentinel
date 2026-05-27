@@ -4,7 +4,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/ui/Card';
 import Badge from '@/Components/ui/Badge';
 import DataTable, { Column } from '@/Components/tables/DataTable';
-import { PageProps } from '@/types';
+import { PageProps, PaginatedResponse } from '@/types';
 
 interface PainPointsStats {
     reviews_processed: number;
@@ -40,8 +40,8 @@ interface TopAppRow {
 
 interface Props extends PageProps {
     stats: PainPointsStats;
-    topPainPoints: PainPointRow[];
-    topApps: TopAppRow[];
+    topPainPoints: PaginatedResponse<PainPointRow>;
+    topApps: PaginatedResponse<TopAppRow>;
 }
 
 const categoryColor = (cat: string | null): 'danger' | 'warning' | 'info' | 'primary' | 'success' | 'gray' => {
@@ -191,7 +191,7 @@ export default function PainPointsAnalytics({ stats, topPainPoints, topApps }: P
                 <Card title="Top Pain Points (across all reviews)">
                     <DataTable
                         columns={painPointColumns}
-                        data={topPainPoints}
+                        pagination={topPainPoints}
                         emptyMessage="No pain points extracted yet."
                     />
                 </Card>
@@ -200,7 +200,7 @@ export default function PainPointsAnalytics({ stats, topPainPoints, topApps }: P
                 <Card title="Apps Ranked by Pain Point Signal">
                     <DataTable
                         columns={topAppsColumns}
-                        data={topApps}
+                        pagination={topApps}
                         emptyMessage="No apps with pain point signals yet."
                     />
                 </Card>
