@@ -14,8 +14,8 @@ Artisan::command('inspire', function () {
 // ScrapeReviewPageJob auto-dispatches CompileBatchJob when new reviews arrive.
 Schedule::command('app:discover:apps')->twiceDaily(2, 14)->withoutOverlapping();
 
-// Safety net: re-enqueue any pending/error apps that fell through.
-Schedule::command('app:scrape:apps --limit=1000')->dailyAt('04:00')->withoutOverlapping();
+// Re-scrape existing apps for delta tracking (stalest first).
+Schedule::command('app:scrape:apps --rescrape --limit=500')->dailyAt('04:00')->withoutOverlapping();
 
 // Storeleads enrichment for store data.
 Schedule::command('app:storeleads:sync --scope=reviewers')->dailyAt('05:00')->withoutOverlapping();
