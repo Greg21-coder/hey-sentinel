@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\Ai\CompileBatchJob;
 use App\Jobs\Scraping\ScrapeReviewPageJob;
 use App\Models\ShopifyApp;
 use App\Models\StoreReview;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 
 it('parses reviews from Klaviyo page-1 fixture and inserts deduped rows', function () {
-    Bus::fake([ScrapeReviewPageJob::class]);
+    Bus::fake([ScrapeReviewPageJob::class, CompileBatchJob::class]);
     $app = ShopifyApp::factory()->create(['shopify_app_handle' => 'klaviyo-email-marketing']);
 
     $html = file_get_contents(base_path('tests/Fixtures/Scraping/reviews-klaviyo-page-1.html'));

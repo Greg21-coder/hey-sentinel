@@ -27,10 +27,15 @@ class ShopifySitemapParser
     /** @return Collection<int, string> */
     public function extractHandles(string $xml): Collection
     {
-        $doc = new \SimpleXMLElement($xml);
+        try {
+            $doc = new \SimpleXMLElement($xml);
+        } catch (\Exception $e) {
+            throw new \RuntimeException("Failed to parse sitemap XML: {$e->getMessage()}", 0, $e);
+        }
+
         $doc->registerXPathNamespace('s', 'http://www.sitemaps.org/schemas/sitemap/0.9');
 
-        $urls = $doc->xpath('//s:url/s:loc');
+        $urls = $doc->xpath('//s:url/s:loc') ?: [];
 
         return collect($urls)
             ->map(fn (\SimpleXMLElement $loc) => (string) $loc)

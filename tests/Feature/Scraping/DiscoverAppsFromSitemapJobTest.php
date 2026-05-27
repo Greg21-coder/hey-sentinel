@@ -2,12 +2,15 @@
 
 use App\Enums\ScrapingStatus;
 use App\Jobs\Scraping\DiscoverAppsFromSitemapJob;
+use App\Jobs\Scraping\ScrapeAppPageJob;
 use App\Models\DiscoveryRun;
 use App\Models\ShopifyApp;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 
 beforeEach(function () {
     config()->set('scraping.discovery.sitemap_url', 'https://apps.shopify.com/sitemap_apps_en.xml');
+    Queue::fake(ScrapeAppPageJob::class);
 });
 
 it('discovers new apps from sitemap and records stats', function () {
@@ -37,6 +40,8 @@ it('discovers new apps from sitemap and records stats', function () {
     expect($app)->not->toBeNull();
     expect($app->scraping_status)->toBe(ScrapingStatus::Pending);
     expect($app->developer_name)->toBe('pending-discovery');
+
+    Queue::assertPushed(ScrapeAppPageJob::class, 3);
 });
 
 it('does not overwrite existing apps', function () {
@@ -110,4 +115,21 @@ it('marks run as failed on HTTP error', function () {
     $run->refresh();
     expect($run->status)->toBe('failed');
     expect($run->error_message)->not->toBeNull();
+});
+
+it('marks run as failed via failed() on unexpected crash', function () {
+    $run = DiscoveryRun::create([
+        'source' => 'sitemap',
+        'status' => 'running',
+        'triggered_by' => 'manual',
+        'started_at' => now(),
+    ]);
+
+    $job = new DiscoverAppsFromSitemapJob($run);
+    $job->failed(new \RuntimeException('Connection reset'));
+
+    $run->refresh();
+    expect($run->status)->toBe('failed');
+    expect($run->error_message)->toBe('Connection reset');
+    expect($run->completed_at)->not->toBeNull();
 });

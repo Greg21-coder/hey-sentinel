@@ -27,6 +27,8 @@ class ScrapeAppPageJob implements ShouldQueue
 
     public int $backoff = 30;
 
+    public int $timeout = 90;
+
     public function __construct(public string $handle) {}
 
     public function middleware(): array
@@ -58,7 +60,23 @@ class ScrapeAppPageJob implements ShouldQueue
             return;
         }
 
-        $parsed = $parser->parse($response->body());
+        try {
+            $parsed = $parser->parse($response->body());
+        } catch (\Throwable $e) {
+            ShopifyApp::updateOrCreate(
+                ['shopify_app_handle' => $this->handle],
+                [
+                    'name' => $this->handle,
+                    'developer_name' => 'unknown',
+                    'scraping_status' => ScrapingStatus::Error->value,
+                    'scraping_error' => "Parse error: {$e->getMessage()}",
+                    'last_scraped_at' => now(),
+                ]
+            );
+
+            return;
+        }
+
         $canonicalHandle = $this->resolveCanonicalHandle($response);
 
         $app = ShopifyApp::updateOrCreate(

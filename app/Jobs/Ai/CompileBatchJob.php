@@ -73,7 +73,16 @@ class CompileBatchJob implements ShouldQueue, ShouldBeUnique
             ],
         ])->all();
 
-        $batchId = $client->submitBatch($requests, $promptVersion);
+        try {
+            $batchId = $client->submitBatch($requests, $promptVersion);
+        } catch (\Throwable $e) {
+            Log::error('CompileBatchJob: submitBatch failed', [
+                'error' => $e->getMessage(),
+                'review_count' => count($requests),
+            ]);
+
+            throw $e;
+        }
 
         $aiBatch = DB::transaction(function () use ($reviews, $batchId, $provider, $promptVersion, $requests) {
             $batch = AiBatch::create([
@@ -100,8 +109,15 @@ class CompileBatchJob implements ShouldQueue, ShouldBeUnique
         // PollBatches cron and dispatch ingest now so iteration is fast.
         // Async providers (Anthropic) report 'submitted' / 'in_progress';
         // the cron handles those.
-        if ($client->pollBatch($batchId) === 'completed') {
-            IngestBatchResultsJob::dispatch($aiBatch->id);
+        try {
+            if ($client->pollBatch($batchId) === 'completed') {
+                IngestBatchResultsJob::dispatch($aiBatch->id);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('CompileBatchJob: pollBatch failed, cron will retry', [
+                'batch_id' => $batchId,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }

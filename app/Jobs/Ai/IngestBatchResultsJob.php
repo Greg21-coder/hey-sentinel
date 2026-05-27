@@ -28,7 +28,17 @@ class IngestBatchResultsJob implements ShouldQueue
         /** @var AiBatch $batch */
         $batch = AiBatch::findOrFail($this->aiBatchId);
 
-        $records = $client->fetchResults($batch->batch_id);
+        try {
+            $records = $client->fetchResults($batch->batch_id);
+        } catch (\Throwable $e) {
+            Log::error('IngestBatchResultsJob: fetchResults failed', [
+                'batch_id' => $batch->batch_id,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+
         $slugToId = AiPainPoint::pluck('id', 'slug')->all();
 
         $processed = 0;

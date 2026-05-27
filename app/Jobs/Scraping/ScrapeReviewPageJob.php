@@ -24,6 +24,8 @@ class ScrapeReviewPageJob implements ShouldQueue
 
     public int $maxExceptions = 3;
 
+    public int $timeout = 90;
+
     public function __construct(public int $appId, public int $page = 1) {}
 
     public function middleware(): array
@@ -84,15 +86,15 @@ class ScrapeReviewPageJob implements ShouldQueue
      */
     protected function toRow(int $appId, ParsedReview $review): array
     {
-        $publishedAt = $review->publishedAt->format('Y-m-d H:i:s');
+        $publishedAt = $review->publishedAt?->format('Y-m-d H:i:s') ?? now()->format('Y-m-d H:i:s');
 
         return [
             'shopify_app_id' => $appId,
             'shopify_store_id' => null,
-            'reviewer_name' => mb_substr($review->reviewerName, 0, 255),
-            'rating' => $review->rating,
-            'review_text' => $review->reviewText,
-            'review_text_hash' => hash('sha256', $review->reviewText),
+            'reviewer_name' => mb_substr($review->reviewerName ?? 'Anonymous', 0, 255),
+            'rating' => $review->rating ?? 0,
+            'review_text' => $review->reviewText ?? '',
+            'review_text_hash' => hash('sha256', $review->reviewText ?? ''),
             'language_code' => null,
             'ai_status' => 'pending',
             'ai_sentiment' => null,
