@@ -132,7 +132,7 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) =>
                             <p className="text-sm text-gray-500">{app.developer_name}</p>
 
                             <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
-                                {Number(app.average_rating) > 0 && (
+                                {app.average_rating != null && Number(app.average_rating) > 0 && (
                                     <span>
                                         <span className="font-medium">
                                             {Number(app.average_rating).toFixed(1)}

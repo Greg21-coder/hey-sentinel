@@ -137,7 +137,7 @@ export default function ShopifyAppShow({ app, reviews, painPoints }: Props) {
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                         <p className="text-sm font-medium text-gray-500">Rating</p>
                         <p className="mt-1 text-2xl font-bold text-gray-900">
-                            ★ {Number(app.average_rating).toFixed(2)}
+                            {app.average_rating != null ? `★ ${Number(app.average_rating).toFixed(2)}` : '—'}
                         </p>
                     </div>
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">

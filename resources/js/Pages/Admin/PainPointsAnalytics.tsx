@@ -121,7 +121,7 @@ export default function PainPointsAnalytics({ stats, topPainPoints, topApps }: P
         {
             key: 'average_rating',
             label: '★ Rating',
-            render: (row) => `★ ${Number(row.average_rating).toFixed(2)}`,
+            render: (row) => row.average_rating != null ? `★ ${Number(row.average_rating).toFixed(2)}` : '—',
         },
         {
             key: 'total_reviews',
