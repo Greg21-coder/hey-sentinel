@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAccountController;
+use App\Http\Controllers\Admin\AdminAppChangeController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminDiscoveryController;
 use App\Http\Controllers\Admin\AdminPainPointsController;
@@ -62,4 +63,5 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureSuperAdmin::class])
         Route::get('/pain-points', AdminPainPointsController::class)->name('pain-points');
         Route::get('/discovery', [AdminDiscoveryController::class, 'index'])->name('discovery.index');
         Route::post('/discovery/run', [AdminDiscoveryController::class, 'run'])->name('discovery.run');
+        Route::get('/app-changes', [AdminAppChangeController::class, 'index'])->name('app-changes.index');
     });
