@@ -80,6 +80,16 @@ class ShopifyApp extends Model
             ->withTimestamps();
     }
 
+    public function snapshots(): HasMany
+    {
+        return $this->hasMany(AppSnapshot::class);
+    }
+
+    public function changes(): HasMany
+    {
+        return $this->hasMany(AppChange::class);
+    }
+
     public function scopePendingScraping(Builder $query): Builder
     {
         return $query->where('scraping_status', ScrapingStatus::Pending->value);
