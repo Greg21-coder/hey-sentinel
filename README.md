@@ -1,6 +1,6 @@
 # HeySentinel
 
-Shopify App Store intelligence platform. Discovers apps, scrapes listings and reviews, extracts pain points via AI, and serves analytics dashboards for merchants and analysts.
+Shopify App Store intelligence platform. Discovers apps, scrapes listings and reviews, extracts pain points via AI, tracks per-app delta changes (pricing, rating, reviews, etc.) with notifications, and serves Growth Intelligence dashboards for merchants and analysts.
 
 ## Tech Stack
 
@@ -76,7 +76,26 @@ docker run --rm \
 
 ### 3. Verify
 
-Open [http://localhost](http://localhost) (or the port configured in `APP_PORT`).
+Open [http://localhost:8080](http://localhost:8080) (this project's `.env` sets `APP_PORT=8080`; override via `.env` if needed).
+
+## Test Credentials
+
+The `DemoAccountSeeder` (run via `db:seed`) creates the following users. **All passwords are `password`.**
+
+| Email | Role | Account | Notes |
+|---|---|---|---|
+| `admin@heysentinel.test` | Super Admin | HeySentinel Internal (Agency) | Full `/admin` access |
+| `acme.owner@example.test` | Customer Owner | Acme Corp (Premium, Active) | Premium-plan customer flow |
+| `acme.admin@example.test` | Customer Admin | Acme Corp | Admin-role within tenant |
+| `beta.owner@example.test` | Customer Owner | Beta Industries (Premium, Trial) | Trial lifecycle |
+| `gamma.owner@example.test` | Customer Owner | Gamma LLC (Free) | Free-plan limits |
+| `delta.owner@example.test` | Customer Owner | Delta Co (Cancelled) | Cancelled-state behaviour |
+| `cross.1@example.test`, `cross.2@example.test` | Member of multiple accounts | Acme + Beta / Gamma + Beta | Multi-account switching |
+
+After login:
+
+- Super Admin lands on `/admin` (dashboard, App Changes, Discovery, Plans, Accounts, Pain Points Analytics).
+- Customers land on `/customer` (Dashboard with change feed + sentiment timeline, App Profile with change history, Saved Searches, Settings).
 
 ## Services
 
@@ -90,7 +109,7 @@ After `sail up -d`, these containers run automatically:
 | **Vite** | `vite` | Frontend dev server with HMR |
 | **MySQL** | `mysql` | Database |
 | **Redis** | `redis` | Queue, cache, sessions |
-| **Mailpit** | `mailpit` | Email testing UI at :8025 |
+| **Mailpit** | `mailpit` | Email testing UI at :8026 |
 
 ## Data Pipeline
 
@@ -104,6 +123,11 @@ Discovery (every 12h)
 Scrape Apps (auto-dispatched per new app)
   Fetches app page: name, rating, pricing, category
     |
+    +-> Snapshot + Diff (Growth Intelligence)
+    |     Creates app_snapshot row, diffs against previous,
+    |     records app_changes + fans out app_change_notifications
+    |     to following accounts.
+    |
     v
 Scrape Reviews (auto-dispatched, 3 pages per app)
   Extracts reviewer, rating, text, date
@@ -113,7 +137,7 @@ AI Pain Point Extraction (auto-dispatched on new reviews)
   Ollama/Anthropic extracts sentiment + pain points per review
     |
     v
-Analytics ready in dashboards
+Analytics + change feed ready in dashboards
 ```
 
 ### Manual triggers
@@ -122,8 +146,9 @@ From the admin panel (`/admin`):
 
 - **Discovery > Run Discovery Now** -- Discover new apps from sitemap
 - **Shopify Apps > Scrape Pending** -- Scrape all pending apps (or select specific ones)
+- **App Changes** -- Browse marketplace-wide delta changes (pricing, rating, reviews, etc.) detected by the snapshot pipeline
 
-Both buttons trigger the full pipeline automatically.
+Both Discovery and Scrape Pending trigger the full pipeline automatically, including snapshot/diff and change notifications.
 
 ### Artisan commands
 
@@ -149,8 +174,8 @@ Both buttons trigger the full pipeline automatically.
 | Time | Command | Purpose |
 |---|---|---|
 | 2:00, 14:00 | `app:discover:apps` | Discover + auto-scrape new apps |
-| 4:00 | `app:scrape:apps --limit=1000` | Safety net for missed apps |
-| 5:00 | `app:storeleads:sync` | Enrich store data |
+| 4:00 | `app:scrape:apps --rescrape --limit=500` | Re-scrape stalest apps for delta tracking |
+| 5:00 | `app:storeleads:sync --scope=reviewers` | Enrich store data |
 | Configurable | `app:ai:compile-batch` | Batch AI extraction |
 | Configurable | `app:ai:poll-batches` | Poll async AI results |
 
@@ -187,10 +212,10 @@ ollama pull qwen2.5:7b-instruct
 ./vendor/bin/sail npx tsc --noEmit
 
 # View Horizon dashboard
-# http://localhost/horizon
+# http://localhost:8080/horizon
 
 # View Mailpit inbox
-# http://localhost:8025
+# http://localhost:8026
 ```
 
 ### Useful commands
@@ -223,8 +248,9 @@ app/
   Jobs/
     Scraping/           Discovery, app scraping, review scraping
     Ai/                 Batch compilation, polling, ingestion
-  Models/               Eloquent models
+  Models/               Eloquent models (includes AppSnapshot, AppChange, AppChangeNotification)
   Services/Scraping/    Sitemap parser, HTTP scrapers, HTML parsers
+  Services/Intelligence/  SnapshotDiffService (Growth Intelligence)
 config/
   scraping.php          Scraping + discovery configuration
   ai.php                AI provider and batch configuration
