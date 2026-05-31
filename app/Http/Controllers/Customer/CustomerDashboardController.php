@@ -66,12 +66,34 @@ class CustomerDashboardController extends Controller
         // --- My Apps ---
         $myApps = $this->buildMyApps($accountId);
 
+        // --- Change Feed ---
+        $changeFeed = [];
+        if ($followedIds !== []) {
+            $changeFeed = \App\Models\AppChange::query()
+                ->with('app:id,name')
+                ->whereIn('shopify_app_id', $followedIds)
+                ->orderByDesc('detected_at')
+                ->limit(20)
+                ->get()
+                ->map(fn ($c) => [
+                    'id' => $c->id,
+                    'app_name' => $c->app?->name ?? 'Unknown',
+                    'app_id' => $c->shopify_app_id,
+                    'field' => $c->field,
+                    'old_value' => $c->old_value,
+                    'new_value' => $c->new_value,
+                    'detected_at' => $c->detected_at->toISOString(),
+                ])
+                ->toArray();
+        }
+
         return Inertia::render('Customer/Dashboard', [
             'stats'              => $stats,
             'sentimentTimeline'  => $sentimentTimeline,
             'painPointsRadar'    => $painPointsRadar,
             'reviewVelocity'     => $reviewVelocity,
             'myApps'             => $myApps,
+            'changeFeed'         => $changeFeed,
         ]);
     }
 

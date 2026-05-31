@@ -21,6 +21,13 @@ interface Props extends PageProps {
     isFollowed: boolean;
     reviews: PaginatedResponse<StoreReview>;
     painPoints: PainPoint[];
+    changeHistory: {
+        id: number;
+        field: string;
+        old_value: string | null;
+        new_value: string | null;
+        detected_at: string;
+    }[];
 }
 
 const sentimentColor = (
@@ -45,7 +52,7 @@ const ratingColor = (rating: number): 'success' | 'warning' | 'danger' | 'gray' 
     return 'gray';
 };
 
-const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) => {
+const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints, changeHistory }) => {
     const { featureGates } = usePage<PageProps>().props;
     const canExport = featureGates?.export_csv?.value === true;
 
@@ -215,6 +222,28 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints }) =>
                                 </li>
                             ))}
                         </ul>
+                    </Card>
+                )}
+
+                {/* Change History */}
+                {changeHistory.length > 0 && (
+                    <Card title="Change History">
+                        <div className="space-y-3">
+                            {changeHistory.map((change) => (
+                                <div key={change.id} className="flex items-start gap-3">
+                                    <div className="mt-1 w-2 h-2 rounded-full bg-shopify-500 flex-shrink-0" />
+                                    <div>
+                                        <p className="text-sm text-gray-900">
+                                            <span className="font-medium">{change.field}</span> changed
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                            {change.old_value ?? '—'} → {change.new_value ?? '—'}
+                                        </p>
+                                        <p className="text-xs text-gray-400">{new Date(change.detected_at).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </Card>
                 )}
 

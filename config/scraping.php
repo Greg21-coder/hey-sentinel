@@ -43,4 +43,13 @@ return [
         // Seconds a proxy stays out of the pool after a 429/503/Cloudflare detection.
         'proxy_after_block_seconds' => 3600,
     ],
+
+    'intelligence' => [
+        'rating_change_threshold' => (float) env('INTELLIGENCE_RATING_THRESHOLD', 0.05),
+        'tracked_fields' => [
+            'name', 'developer_name', 'description_hash', 'pricing_raw',
+            'pricing_min_usd', 'pricing_has_free', 'average_rating',
+            'total_reviews', 'category_name',
+        ],
+    ],
 ];

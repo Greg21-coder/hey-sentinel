@@ -2,10 +2,16 @@
 
 use App\Enums\ScrapingStatus;
 use App\Jobs\Scraping\ScrapeAppPageJob;
+use App\Jobs\Scraping\ScrapeReviewPageJob;
 use App\Models\ShopifyApp;
 use App\Services\Scraping\ShopifyAppPageParser;
 use App\Services\Scraping\ShopifyAppScraper;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
+
+beforeEach(function () {
+    Queue::fake(ScrapeReviewPageJob::class);
+});
 
 it('parses and upserts a ShopifyApp row from a real Klaviyo fixture', function () {
     $html = file_get_contents(base_path('tests/Fixtures/Scraping/app-klaviyo.html'));

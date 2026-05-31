@@ -41,6 +41,15 @@ interface Props extends PageProps {
         counts: number[];
     };
     myApps: MyApp[];
+    changeFeed: {
+        id: number;
+        app_name: string;
+        app_id: number;
+        field: string;
+        old_value: string | null;
+        new_value: string | null;
+        detected_at: string;
+    }[];
 }
 
 const StatCard: React.FC<{ label: string; value: number | string }> = ({
@@ -70,6 +79,7 @@ const Dashboard: React.FC<Props> = ({
     painPointsRadar,
     reviewVelocity,
     myApps,
+    changeFeed,
 }) => {
     return (
         <CustomerLayout>
@@ -182,6 +192,24 @@ const Dashboard: React.FC<Props> = ({
                         </table>
                     </div>
                 </Card>
+
+                {changeFeed.length > 0 && (
+                    <Card title="Recent Changes">
+                        <div className="divide-y divide-gray-100 -mx-6 -mb-5">
+                            {changeFeed.map((change) => (
+                                <a key={change.id} href={`/customer/apps/${change.app_id}`} className="flex items-center justify-between px-6 py-3 hover:bg-gray-50">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900">{change.app_name}</p>
+                                        <p className="text-xs text-gray-500">
+                                            <span className="font-medium">{change.field}</span>: {change.old_value ?? '—'} &rarr; {change.new_value ?? '—'}
+                                        </p>
+                                    </div>
+                                    <span className="text-xs text-gray-400">{new Date(change.detected_at).toLocaleDateString()}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </Card>
+                )}
             </div>
         </CustomerLayout>
     );

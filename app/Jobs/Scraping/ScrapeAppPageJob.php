@@ -3,8 +3,12 @@
 namespace App\Jobs\Scraping;
 
 use App\Enums\ScrapingStatus;
+use App\Models\AccountFollowedApp;
+use App\Models\AppChange;
+use App\Models\AppChangeNotification;
 use App\Models\ShopifyApp;
 use App\Models\ShopifyAppCategory;
+use App\Services\Intelligence\SnapshotDiffService;
 use App\Services\Scraping\ParsedShopifyApp;
 use App\Services\Scraping\ShopifyAppPageParser;
 use App\Services\Scraping\ShopifyAppScraper;
@@ -26,6 +30,8 @@ class ScrapeAppPageJob implements ShouldQueue
     public int $maxExceptions = 3;
 
     public int $backoff = 30;
+
+    public int $timeout = 90;
 
     public function __construct(public string $handle) {}
 
@@ -58,7 +64,23 @@ class ScrapeAppPageJob implements ShouldQueue
             return;
         }
 
-        $parsed = $parser->parse($response->body());
+        try {
+            $parsed = $parser->parse($response->body());
+        } catch (\Throwable $e) {
+            ShopifyApp::updateOrCreate(
+                ['shopify_app_handle' => $this->handle],
+                [
+                    'name' => $this->handle,
+                    'developer_name' => 'unknown',
+                    'scraping_status' => ScrapingStatus::Error->value,
+                    'scraping_error' => "Parse error: {$e->getMessage()}",
+                    'last_scraped_at' => now(),
+                ]
+            );
+
+            return;
+        }
+
         $canonicalHandle = $this->resolveCanonicalHandle($response);
 
         $app = ShopifyApp::updateOrCreate(
@@ -93,6 +115,43 @@ class ScrapeAppPageJob implements ShouldQueue
             'rating' => $parsed->averageRating,
             'reviews' => $parsed->totalReviews,
         ]);
+
+        try {
+            $diffService = app(SnapshotDiffService::class);
+            $app->load('category');
+            $previousSnapshot = $app->snapshots()->orderByDesc('snapshot_at')->first();
+            $currentSnapshot = $diffService->createSnapshot($app);
+
+            if ($previousSnapshot) {
+                $changes = $diffService->diff($previousSnapshot, $currentSnapshot);
+                $followerAccountIds = AccountFollowedApp::withoutGlobalScope('account')
+                    ->where('shopify_app_id', $app->id)
+                    ->pluck('account_id');
+
+                foreach ($changes as $change) {
+                    $appChange = AppChange::create([
+                        'shopify_app_id' => $app->id,
+                        'field' => $change['field'],
+                        'old_value' => $change['old'],
+                        'new_value' => $change['new'],
+                        'detected_at' => now(),
+                    ]);
+
+                    foreach ($followerAccountIds as $accountId) {
+                        AppChangeNotification::create([
+                            'app_change_id' => $appChange->id,
+                            'account_id' => $accountId,
+                            'created_at' => now(),
+                        ]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('ScrapeAppPageJob: snapshot/diff failed', [
+                'handle' => $this->handle,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

@@ -82,11 +82,24 @@ class CustomerAppController extends Controller
             ->limit(20)
             ->get();
 
+        $changeHistory = \App\Models\AppChange::where('shopify_app_id', $shopifyApp->id)
+            ->orderByDesc('detected_at')
+            ->limit(30)
+            ->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'field' => $c->field,
+                'old_value' => $c->old_value,
+                'new_value' => $c->new_value,
+                'detected_at' => $c->detected_at->toISOString(),
+            ]);
+
         return Inertia::render('Customer/AppDetail', [
-            'app'        => $shopifyApp,
-            'isFollowed' => $isFollowed,
-            'reviews'    => $reviews,
-            'painPoints' => $painPoints,
+            'app'           => $shopifyApp,
+            'isFollowed'    => $isFollowed,
+            'reviews'       => $reviews,
+            'painPoints'    => $painPoints,
+            'changeHistory' => $changeHistory,
         ]);
     }
 }

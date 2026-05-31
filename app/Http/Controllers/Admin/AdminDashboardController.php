@@ -47,6 +47,18 @@ class AdminDashboardController extends Controller
         $painPointCount = DB::table('review_pain_point')->count();
         $uniquePainPoints = AiPainPoint::count();
 
+        $weekAgo = now()->subWeek();
+
+        $priceChangesWeek = \App\Models\AppChange::where('field', 'pricing_raw')
+            ->where('detected_at', '>=', $weekAgo)->count();
+
+        $ratingDropsWeek = \App\Models\AppChange::where('field', 'average_rating')
+            ->where('detected_at', '>=', $weekAgo)
+            ->whereRaw('CAST(old_value AS DECIMAL(3,2)) - CAST(new_value AS DECIMAL(3,2)) > 0.5')
+            ->count();
+
+        $newAppsWeek = ShopifyApp::where('created_at', '>=', $weekAgo)->count();
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'accounts'           => $accountsByStatus,
@@ -68,6 +80,11 @@ class AdminDashboardController extends Controller
             'ai_batches' => $aiBatchesByStatus,
             'sentimentBreakdown' => $sentimentBreakdown,
             'reviewsPerWeek' => $reviewsPerWeek,
+            'intelligence' => [
+                'price_changes_week' => $priceChangesWeek,
+                'rating_drops_week' => $ratingDropsWeek,
+                'new_apps_week' => $newAppsWeek,
+            ],
         ]);
     }
 

@@ -25,7 +25,16 @@ class PollBatchesJob implements ShouldQueue
         $dispatched = 0;
 
         foreach ($batches as $batch) {
-            $status = $client->pollBatch($batch->batch_id);
+            try {
+                $status = $client->pollBatch($batch->batch_id);
+            } catch (\Throwable $e) {
+                Log::warning('PollBatchesJob: pollBatch failed', [
+                    'batch_id' => $batch->batch_id,
+                    'error' => $e->getMessage(),
+                ]);
+
+                continue;
+            }
 
             if ($status !== $batch->status) {
                 $batch->update(['status' => $status]);

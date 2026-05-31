@@ -57,8 +57,8 @@ class AdminPainPointsController extends Controller
             )
             ->having('occurrences', '>', 0)
             ->orderByDesc('occurrences')
-            ->limit(50)
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         $processedSub = DB::table('store_reviews')
             ->whereColumn('store_reviews.shopify_app_id', 'shopify_apps.id')
@@ -92,8 +92,8 @@ class AdminPainPointsController extends Controller
             ->selectSub($negativePctSub, 'negative_pct')
             ->having('pain_point_count', '>', 0)
             ->orderByDesc('pain_point_count')
-            ->limit(50)
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         return Inertia::render('Admin/PainPointsAnalytics', [
             'stats' => [
