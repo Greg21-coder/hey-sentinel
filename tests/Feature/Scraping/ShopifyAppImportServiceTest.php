@@ -1,9 +1,11 @@
 <?php
 
 use App\Enums\ScrapingStatus;
+use App\Jobs\Scraping\ScrapeReviewPageJob;
 use App\Models\AppSnapshot;
 use App\Models\ShopifyApp;
 use App\Services\Scraping\ShopifyAppImportService;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 
 it('imports a brand-new app via handle, persists row, seeds snapshot', function () {
@@ -59,6 +61,24 @@ it('throws on HTTP failure (e.g. 500)', function () {
 
     expect(fn () => $service->importByHandle('broken-app'))
         ->toThrow(\RuntimeException::class);
+});
+
+it('dispatches ScrapeReviewPageJob for the configured number of pages after import', function () {
+    $html = file_get_contents(base_path('tests/Fixtures/Scraping/app-klaviyo.html'));
+    Http::fake([
+        'apps.shopify.com/*' => Http::response($html, 200),
+    ]);
+
+    config()->set('scraping.defaults.review_pages_per_app', 3);
+    Bus::fake([ScrapeReviewPageJob::class]);
+
+    $service = app(ShopifyAppImportService::class);
+    $app = $service->importByHandle('klaviyo-email-marketing');
+
+    Bus::assertDispatched(ScrapeReviewPageJob::class, 3);
+    Bus::assertDispatched(ScrapeReviewPageJob::class, fn ($job) => $job->appId === $app->id && $job->page === 1);
+    Bus::assertDispatched(ScrapeReviewPageJob::class, fn ($job) => $job->appId === $app->id && $job->page === 2);
+    Bus::assertDispatched(ScrapeReviewPageJob::class, fn ($job) => $job->appId === $app->id && $job->page === 3);
 });
 
 it('throws when the parser fails, wrapping the original exception', function () {

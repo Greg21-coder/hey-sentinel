@@ -3,6 +3,7 @@
 namespace App\Services\Scraping;
 
 use App\Enums\ScrapingStatus;
+use App\Jobs\Scraping\ScrapeReviewPageJob;
 use App\Models\ShopifyApp;
 use App\Models\ShopifyAppCategory;
 use App\Services\Intelligence\SnapshotDiffService;
@@ -63,6 +64,11 @@ class ShopifyAppImportService
 
         $app->load('category');
         $this->snapshots->createSnapshot($app);
+
+        $reviewPages = (int) config('scraping.defaults.review_pages_per_app', 3);
+        for ($p = 1; $p <= $reviewPages; $p++) {
+            ScrapeReviewPageJob::dispatch($app->id, $p);
+        }
 
         return $app;
     }
