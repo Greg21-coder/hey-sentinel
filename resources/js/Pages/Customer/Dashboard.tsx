@@ -50,6 +50,9 @@ interface Props extends PageProps {
         new_value: string | null;
         detected_at: string;
     }[];
+    onboarding: {
+        needsTour: boolean;
+    };
 }
 
 const StatCard: React.FC<{ label: string; value: number | string }> = ({
@@ -66,7 +69,7 @@ const kindBadgeColor = (kind: string): 'primary' | 'success' | 'warning' | 'gray
     switch (kind) {
         case 'competitor':
             return 'warning';
-        case 'own':
+        case 'mine':
             return 'success';
         default:
             return 'gray';
@@ -80,6 +83,7 @@ const Dashboard: React.FC<Props> = ({
     reviewVelocity,
     myApps,
     changeFeed,
+    onboarding,
 }) => {
     return (
         <CustomerLayout>

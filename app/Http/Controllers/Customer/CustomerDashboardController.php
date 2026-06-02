@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Enums\FollowedAppKind;
 use App\Http\Controllers\Controller;
 use App\Models\AccountFollowedApp;
 use App\Models\AiPainPoint;
@@ -87,6 +88,11 @@ class CustomerDashboardController extends Controller
                 ->toArray();
         }
 
+        $needsTour = AccountFollowedApp::withoutGlobalScope('account')
+            ->where('account_id', $accountId)
+            ->where('kind', FollowedAppKind::Mine->value)
+            ->doesntExist();
+
         return Inertia::render('Customer/Dashboard', [
             'stats'              => $stats,
             'sentimentTimeline'  => $sentimentTimeline,
@@ -94,6 +100,7 @@ class CustomerDashboardController extends Controller
             'reviewVelocity'     => $reviewVelocity,
             'myApps'             => $myApps,
             'changeFeed'         => $changeFeed,
+            'onboarding'         => ['needsTour' => $needsTour],
         ]);
     }
 
@@ -201,6 +208,7 @@ class CustomerDashboardController extends Controller
         return DB::table('account_followed_apps')
             ->join('shopify_apps', 'shopify_apps.id', '=', 'account_followed_apps.shopify_app_id')
             ->where('account_followed_apps.account_id', $accountId)
+            ->where('account_followed_apps.kind', FollowedAppKind::Mine->value)
             ->whereNull('shopify_apps.unlisted_at')
             ->select([
                 'shopify_apps.id',
