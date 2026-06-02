@@ -12,24 +12,32 @@ class FollowAppController extends Controller
 {
     public function store(Request $request, ShopifyApp $shopifyApp): RedirectResponse
     {
+        $data = $request->validate([
+            'kind' => ['nullable', \Illuminate\Validation\Rule::enum(\App\Enums\FollowedAppKind::class)],
+        ]);
+
         $account = $request->user()->currentAccount;
 
         abort_unless($account !== null, 403, 'No account found.');
         abort_unless($account->canUse('apps_tracked'), 403, 'Your plan does not allow tracking more apps.');
 
-        AccountFollowedApp::withoutGlobalScope('account')
+        $kind = $data['kind'] ?? \App\Enums\FollowedAppKind::Competitor->value;
+
+        $pivot = AccountFollowedApp::withoutGlobalScope('account')
             ->firstOrCreate(
                 [
                     'account_id'     => $account->id,
                     'shopify_app_id' => $shopifyApp->id,
                 ],
                 [
-                    'kind'        => 'competitor',
+                    'kind'        => $kind,
                     'followed_at' => now(),
                 ]
             );
 
-        $account->recordUsage('apps_tracked');
+        if ($pivot->wasRecentlyCreated) {
+            $account->recordUsage('apps_tracked');
+        }
 
         return back()->with('success', "Now following {$shopifyApp->name}.");
     }
