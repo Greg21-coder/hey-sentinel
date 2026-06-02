@@ -39,15 +39,15 @@ it('is idempotent on a second call — updates the existing row', function () {
     expect(AppSnapshot::where('shopify_app_id', $first->id)->count())->toBe(2);
 });
 
-it('throws when the scraper returns null (rate-limited / unreachable)', function () {
-    Http::fake([
-        'apps.shopify.com/*' => Http::response('', 429),
-    ]);
+it('throws when the scraper returns null (rate-limited or unreachable)', function () {
+    $mockScraper = Mockery::mock(\App\Services\Scraping\ShopifyAppScraper::class);
+    $mockScraper->shouldReceive('fetch')->andReturn(null);
+    $this->app->instance(\App\Services\Scraping\ShopifyAppScraper::class, $mockScraper);
 
-    $service = app(ShopifyAppImportService::class);
+    $service = app(\App\Services\Scraping\ShopifyAppImportService::class);
 
-    expect(fn () => $service->importByHandle('does-not-matter'))
-        ->toThrow(\RuntimeException::class);
+    expect(fn () => $service->importByHandle('any-handle'))
+        ->toThrow(\RuntimeException::class, "Could not fetch Shopify app 'any-handle'");
 });
 
 it('throws on HTTP failure (e.g. 500)', function () {
@@ -59,4 +59,19 @@ it('throws on HTTP failure (e.g. 500)', function () {
 
     expect(fn () => $service->importByHandle('broken-app'))
         ->toThrow(\RuntimeException::class);
+});
+
+it('throws when the parser fails, wrapping the original exception', function () {
+    Http::fake([
+        'apps.shopify.com/*' => Http::response('<html>not parseable</html>', 200),
+    ]);
+
+    $mockParser = Mockery::mock(\App\Services\Scraping\ShopifyAppPageParser::class);
+    $mockParser->shouldReceive('parse')->andThrow(new \RuntimeException('parser exploded'));
+    $this->app->instance(\App\Services\Scraping\ShopifyAppPageParser::class, $mockParser);
+
+    $service = app(\App\Services\Scraping\ShopifyAppImportService::class);
+
+    expect(fn () => $service->importByHandle('any-handle'))
+        ->toThrow(\RuntimeException::class, "Failed to parse Shopify app page for 'any-handle'");
 });
