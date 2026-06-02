@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Enums\FollowedAppKind;
 use App\Http\Controllers\Controller;
 use App\Models\AccountFollowedApp;
 use App\Models\ShopifyApp;
@@ -34,6 +35,12 @@ class CustomerAppController extends Controller
                 $inner->where('name', 'LIKE', "%{$filters['keyword']}%")
                       ->orWhere('description', 'LIKE', "%{$filters['keyword']}%");
             }))
+            ->whereNotIn('id', function ($sub) use ($accountId) {
+                $sub->select('shopify_app_id')
+                    ->from('account_followed_apps')
+                    ->where('account_id', $accountId)
+                    ->where('kind', FollowedAppKind::Mine->value);
+            })
             ->orderByDesc('total_reviews');
 
         $apps = $query->paginate(20)->withQueryString();
