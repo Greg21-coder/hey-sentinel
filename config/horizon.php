@@ -203,8 +203,10 @@ return [
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
+            // Recycle workers every hour and every 250 jobs so code changes
+            // take effect without a manual `horizon:terminate` restart.
+            'maxTime' => 3600,
+            'maxJobs' => 250,
             'memory' => 128,
             'tries' => 30,
             'timeout' => 90,
