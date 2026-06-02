@@ -212,8 +212,15 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding }) => {
                                     myApps.map(app => (
                                         <tr key={app.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-3 font-medium text-gray-900">
-                                                <a href={`/customer/apps/${app.id}`} className="hover:text-shopify-500">
-                                                    {app.name}
+                                                <a href={`/customer/apps/${app.id}`} className="flex items-center gap-3 hover:text-shopify-500">
+                                                    {app.avatar_url ? (
+                                                        <img src={app.avatar_url} alt="" className="h-8 w-8 rounded-md object-cover flex-shrink-0" />
+                                                    ) : (
+                                                        <div className="h-8 w-8 rounded-md bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500 flex-shrink-0">
+                                                            {(app.name || app.shopify_app_handle).charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                    <span className="truncate">{app.name}</span>
                                                 </a>
                                             </td>
                                             <td className="px-4 py-3 text-gray-700">

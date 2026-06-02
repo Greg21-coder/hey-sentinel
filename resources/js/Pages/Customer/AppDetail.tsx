@@ -127,16 +127,24 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints, chan
                 {/* App header */}
                 <Card>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-3 flex-wrap">
-                                <h1 className="text-xl font-semibold text-gray-900">
-                                    {app.name}
-                                </h1>
-                                {app.category && (
-                                    <Badge color="primary">{typeof app.category === 'object' ? app.category.name : app.category}</Badge>
-                                )}
-                            </div>
-                            <p className="text-sm text-gray-500">{app.developer_name}</p>
+                        <div className="flex items-start gap-4 min-w-0">
+                            {app.avatar_url ? (
+                                <img src={app.avatar_url} alt="" className="h-14 w-14 rounded-lg object-cover flex-shrink-0" />
+                            ) : (
+                                <div className="h-14 w-14 rounded-lg bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-500 flex-shrink-0">
+                                    {(app.name || '?').charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            <div className="space-y-2 min-w-0">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <h1 className="text-xl font-semibold text-gray-900">
+                                        {app.name}
+                                    </h1>
+                                    {app.category && (
+                                        <Badge color="primary">{typeof app.category === 'object' ? app.category.name : app.category}</Badge>
+                                    )}
+                                </div>
+                                <p className="text-sm text-gray-500">{app.developer_name}</p>
 
                             <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
                                 {app.average_rating != null && Number(app.average_rating) > 0 && (
@@ -159,6 +167,7 @@ const AppDetail: React.FC<Props> = ({ app, isFollowed, reviews, painPoints, chan
                                 {app.pricing_min_usd && (
                                     <span>From ${app.pricing_min_usd}/mo</span>
                                 )}
+                            </div>
                             </div>
                         </div>
 
