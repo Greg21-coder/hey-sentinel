@@ -12,10 +12,44 @@ use App\Services\Scraping\ShopifyAppImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class MyAppsController extends Controller
 {
+    public function index(Request $request): InertiaResponse
+    {
+        $accountId = $request->user()->currentAccount?->id ?? 0;
+
+        $myApps = DB::table('account_followed_apps')
+            ->join('shopify_apps', 'shopify_apps.id', '=', 'account_followed_apps.shopify_app_id')
+            ->where('account_followed_apps.account_id', $accountId)
+            ->where('account_followed_apps.kind', FollowedAppKind::Mine->value)
+            ->whereNull('shopify_apps.unlisted_at')
+            ->select([
+                'shopify_apps.id',
+                'shopify_apps.shopify_app_handle',
+                'shopify_apps.name',
+                'shopify_apps.avatar_url',
+                'shopify_apps.average_rating',
+                'shopify_apps.total_reviews',
+                'account_followed_apps.followed_at',
+            ])
+            ->orderBy('account_followed_apps.followed_at', 'desc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->values();
+
+        $needsTour = $myApps->isEmpty();
+
+        return Inertia::render('Customer/MyApps', [
+            'myApps' => $myApps,
+            'onboarding' => ['needsTour' => $needsTour],
+        ]);
+    }
+
     public function search(Request $request): JsonResponse
     {
         $q = trim((string) $request->input('q', ''));

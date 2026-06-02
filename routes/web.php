@@ -46,6 +46,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::get('/notifications/count', [NotificationController::class, 'unreadCount'])->name('notifications.count');
     Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
     Route::post('/notifications/mark-read', [NotificationController::class, 'markAllRead'])->name('notifications.markRead');
+    Route::get('/my-apps', [MyAppsController::class, 'index'])->name('my-apps.index');
     Route::get('/my-apps/search', [MyAppsController::class, 'search'])->name('my-apps.search');
     Route::post('/my-apps', [MyAppsController::class, 'store'])
         ->middleware('throttle:5,1')

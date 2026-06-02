@@ -80,3 +80,33 @@ it('matches by shopify_app_handle (for pending apps with no name yet)', function
     expect($results)->toHaveCount(1);
     expect($results[0]['shopify_app_handle'])->toBe('my-cool-handle-app');
 });
+
+it('renders the MyApps page with the current account mine-apps and onboarding flag', function () {
+    $app = ShopifyApp::factory()->create([
+        'name' => 'My Klaviyo',
+        'scraping_status' => 'scraped',
+    ]);
+
+    AccountFollowedApp::withoutGlobalScope('account')->create([
+        'account_id' => $this->account->id,
+        'shopify_app_id' => $app->id,
+        'kind' => 'mine',
+        'followed_at' => now(),
+    ]);
+
+    $response = $this->actingAs($this->user)->get('/customer/my-apps');
+    $response->assertOk();
+
+    $props = $response->viewData('page')['props'];
+    expect($props['myApps'])->toHaveCount(1);
+    expect($props['myApps'][0]['name'])->toBe('My Klaviyo');
+    expect($props['onboarding']['needsTour'])->toBeFalse();
+});
+
+it('renders the MyApps page with onboarding.needsTour=true for new accounts', function () {
+    $response = $this->actingAs($this->user)->get('/customer/my-apps');
+    $props = $response->viewData('page')['props'];
+
+    expect($props['myApps'])->toBeEmpty();
+    expect($props['onboarding']['needsTour'])->toBeTrue();
+});
