@@ -47,6 +47,9 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
     Route::post('/notifications/mark-read', [NotificationController::class, 'markAllRead'])->name('notifications.markRead');
     Route::get('/my-apps/search', [MyAppsController::class, 'search'])->name('my-apps.search');
+    Route::post('/my-apps', [MyAppsController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->name('my-apps.store');
 });
 
 Route::middleware(['auth', \App\Http\Middleware\EnsureSuperAdmin::class])
