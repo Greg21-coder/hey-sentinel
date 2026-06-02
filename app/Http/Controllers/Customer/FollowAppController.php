@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Enums\FollowedAppKind;
 use App\Http\Controllers\Controller;
 use App\Models\AccountFollowedApp;
 use App\Models\ShopifyApp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class FollowAppController extends Controller
 {
     public function store(Request $request, ShopifyApp $shopifyApp): RedirectResponse
     {
         $data = $request->validate([
-            'kind' => ['nullable', \Illuminate\Validation\Rule::enum(\App\Enums\FollowedAppKind::class)],
+            'kind' => ['nullable', Rule::enum(FollowedAppKind::class)],
         ]);
 
         $account = $request->user()->currentAccount;
@@ -21,7 +23,7 @@ class FollowAppController extends Controller
         abort_unless($account !== null, 403, 'No account found.');
         abort_unless($account->canUse('apps_tracked'), 403, 'Your plan does not allow tracking more apps.');
 
-        $kind = $data['kind'] ?? \App\Enums\FollowedAppKind::Competitor->value;
+        $kind = $data['kind'] ?? FollowedAppKind::Competitor->value;
 
         $pivot = AccountFollowedApp::withoutGlobalScope('account')
             ->firstOrCreate(

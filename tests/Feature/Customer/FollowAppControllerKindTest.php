@@ -42,3 +42,20 @@ it('rejects an invalid kind value', function () {
         ->post("/customer/apps/{$this->shopifyApp->id}/follow", ['kind' => 'bogus'])
         ->assertSessionHasErrors('kind');
 });
+
+it('does not double-count apps_tracked usage when the same app is followed twice', function () {
+    $this->actingAs($this->user)
+        ->post("/customer/apps/{$this->shopifyApp->id}/follow")
+        ->assertRedirect();
+
+    $this->actingAs($this->user)
+        ->post("/customer/apps/{$this->shopifyApp->id}/follow")
+        ->assertRedirect();
+
+    $usageLogCount = \App\Models\FeatureUsageLog::query()
+        ->where('account_id', $this->user->currentAccount->id)
+        ->where('feature_key', 'apps_tracked')
+        ->count();
+
+    expect($usageLogCount)->toBe(1);
+});
