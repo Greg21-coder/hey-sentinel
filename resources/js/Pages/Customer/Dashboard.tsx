@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import Card from '@/Components/ui/Card';
@@ -85,12 +85,53 @@ const Dashboard: React.FC<Props> = ({
     changeFeed,
     onboarding,
 }) => {
+    const [tourDismissed, setTourDismissed] = useState<boolean>(() => {
+        if (typeof window === 'undefined') return false;
+        return window.localStorage.getItem('heysentinel.tourDismissed') === '1';
+    });
+
+    const showBanner = onboarding.needsTour && !tourDismissed;
+
+    const dismissBanner = () => {
+        window.localStorage.setItem('heysentinel.tourDismissed', '1');
+        setTourDismissed(true);
+    };
+
     return (
         <CustomerLayout>
             <Head title="Dashboard" />
 
             <div className="space-y-6">
                 <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
+
+                {showBanner && (
+                    <div className="flex items-center justify-between rounded-lg border border-shopify-200 bg-shopify-50 px-4 py-3">
+                        <div className="flex items-start gap-3">
+                            <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-shopify-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <p className="text-sm font-medium text-shopify-900">Set up your apps</p>
+                                <p className="text-xs text-shopify-700">Pick the Shopify apps you own so HeySentinel can track them on your dashboard.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <a
+                                href="/customer/my-apps"
+                                className="rounded-md bg-shopify-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-shopify-600"
+                            >
+                                Quick setup
+                            </a>
+                            <button
+                                type="button"
+                                onClick={dismissBanner}
+                                className="rounded-md px-2 py-1.5 text-xs font-medium text-shopify-700 hover:bg-shopify-100"
+                            >
+                                Dismiss
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Stat cards */}
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
