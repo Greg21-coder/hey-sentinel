@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\RegisteredAccountController;
 use App\Http\Controllers\Customer\CustomerAppController;
 use App\Http\Controllers\Customer\CustomerDashboardController;
 use App\Http\Controllers\Customer\ExportController;
+use App\Http\Controllers\Customer\MyAppsController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\FollowAppController;
 use App\Http\Controllers\Customer\SavedSearchController;
@@ -45,6 +46,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::get('/notifications/count', [NotificationController::class, 'unreadCount'])->name('notifications.count');
     Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
     Route::post('/notifications/mark-read', [NotificationController::class, 'markAllRead'])->name('notifications.markRead');
+    Route::get('/my-apps/search', [MyAppsController::class, 'search'])->name('my-apps.search');
 });
 
 Route::middleware(['auth', \App\Http\Middleware\EnsureSuperAdmin::class])
