@@ -86,6 +86,18 @@ it('accepts a full Shopify URL, extracts the handle, and imports if unknown', fu
     expect($pivot->kind->value)->toBe('mine');
 });
 
+it('sets reviews_sync_started_at when importing a fresh app', function () {
+    $html = file_get_contents(base_path('tests/Fixtures/Scraping/app-klaviyo.html'));
+    Http::fake(['apps.shopify.com/*' => Http::response($html, 200)]);
+
+    $this->actingAs($this->user)
+        ->post('/customer/my-apps', ['url' => 'https://apps.shopify.com/sync-start-test-app']);
+
+    $app = ShopifyApp::where('shopify_app_handle', 'sync-start-test-app')->first();
+    expect($app->reviews_sync_started_at)->not->toBeNull();
+    expect($app->reviews_sync_started_at->diffInSeconds(now()))->toBeLessThan(5);
+});
+
 it('rejects a non-Shopify URL with 422', function () {
     $this->actingAs($this->user)
         ->post('/customer/my-apps', ['url' => 'https://evil.example.com/foo'])

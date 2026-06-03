@@ -66,6 +66,9 @@ class ShopifyAppImportService
         $this->snapshots->createSnapshot($app);
 
         $reviewPages = (int) config('scraping.defaults.review_pages_per_app', 3);
+
+        $app->forceFill(['reviews_sync_started_at' => now()])->save();
+
         for ($p = 1; $p <= $reviewPages; $p++) {
             ScrapeReviewPageJob::dispatch($app->id, $p);
         }
