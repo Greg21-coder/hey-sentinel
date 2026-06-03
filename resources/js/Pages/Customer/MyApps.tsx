@@ -15,7 +15,22 @@ interface MyApp {
     avatar_url: string | null;
     average_rating: string | null;
     total_reviews: number;
+    scraped_reviews_count: number;
+    reviews_sync_started_at: string | null;
     followed_at: string;
+}
+
+type SyncState = 'syncing' | 'failed' | 'healthy';
+
+function appSyncState(app: MyApp): SyncState {
+    const scraped = app.scraped_reviews_count ?? 0;
+    const total = app.total_reviews ?? 0;
+    if (scraped > 0 || total === 0) return 'healthy';
+    if (app.reviews_sync_started_at === null) return 'failed';
+
+    const startedMs = new Date(app.reviews_sync_started_at).getTime();
+    const ageMs = Date.now() - startedMs;
+    return ageMs < 5 * 60 * 1000 ? 'syncing' : 'failed';
 }
 
 interface SearchResult {
