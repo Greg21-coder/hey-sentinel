@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import Card from '@/Components/ui/Card';
@@ -68,6 +68,27 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding }) => {
 
         return () => window.clearTimeout(t);
     }, [onboarding.needsTour]);
+
+    const hasSyncing = useMemo(
+        () => myApps.some(a => appSyncState(a) === 'syncing'),
+        [myApps]
+    );
+
+    useEffect(() => {
+        if (!hasSyncing) return;
+
+        let attempts = 0;
+        const interval = window.setInterval(() => {
+            attempts++;
+            if (attempts >= 60) {
+                window.clearInterval(interval);
+                return;
+            }
+            router.reload({ only: ['myApps'] });
+        }, 5000);
+
+        return () => window.clearInterval(interval);
+    }, [hasSyncing]);
 
     useEffect(() => {
         if (debounceRef.current) window.clearTimeout(debounceRef.current);
