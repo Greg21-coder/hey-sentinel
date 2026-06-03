@@ -263,13 +263,34 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding }) => {
                                                 })()}
                                             </td>
                                             <td className="px-4 py-3 text-right">
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    onClick={() => router.delete(`/customer/apps/${app.id}/follow`, { preserveScroll: true })}
-                                                >
-                                                    Remove
-                                                </Button>
+                                                <div className="flex justify-end gap-2">
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        disabled={appSyncState(app) === 'syncing'}
+                                                        onClick={() =>
+                                                            router.post(
+                                                                `/customer/apps/${app.id}/sync-reviews`,
+                                                                {},
+                                                                { preserveScroll: true }
+                                                            )
+                                                        }
+                                                    >
+                                                        {appSyncState(app) === 'syncing' ? 'Syncing...' : 'Sync reviews'}
+                                                    </Button>
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            router.delete(
+                                                                `/customer/apps/${app.id}/follow`,
+                                                                { preserveScroll: true }
+                                                            )
+                                                        }
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
