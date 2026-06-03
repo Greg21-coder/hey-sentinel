@@ -38,6 +38,7 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::get('/apps/{shopifyApp}', [CustomerAppController::class, 'show'])->name('apps.show');
     Route::post('/apps/{shopifyApp}/follow', [FollowAppController::class, 'store'])->name('apps.follow');
     Route::delete('/apps/{shopifyApp}/follow', [FollowAppController::class, 'destroy'])->name('apps.unfollow');
+    Route::post('/apps/{shopifyApp}/sync-reviews', [FollowAppController::class, 'syncReviews'])->name('apps.sync-reviews');
     Route::resource('saved-searches', SavedSearchController::class)->except(['show', 'create', 'edit']);
     Route::post('/export/apps', [ExportController::class, 'apps'])->name('export.apps');
     Route::post('/export/reviews/{shopifyApp}', [ExportController::class, 'reviews'])->name('export.reviews');

@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Customer;
 
 use App\Enums\FollowedAppKind;
 use App\Http\Controllers\Controller;
+use App\Jobs\Scraping\ScrapeReviewPageJob;
 use App\Models\AccountFollowedApp;
 use App\Models\ShopifyApp;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 
 class FollowAppController extends Controller
@@ -56,5 +58,32 @@ class FollowAppController extends Controller
             ->delete();
 
         return back()->with('success', "Unfollowed {$shopifyApp->name}.");
+    }
+
+    public function syncReviews(Request $request, ShopifyApp $shopifyApp): RedirectResponse
+    {
+        $account = $request->user()->currentAccount;
+        abort_unless($account !== null, 403, 'No account found.');
+
+        $follows = AccountFollowedApp::withoutGlobalScope('account')
+            ->where('account_id', $account->id)
+            ->where('shopify_app_id', $shopifyApp->id)
+            ->exists();
+        abort_unless($follows, 403, 'You are not following this app.');
+
+        $key = "manual-sync-reviews:app:{$shopifyApp->id}";
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            return back()->with('error', 'Already syncing. Wait a few minutes before retrying.');
+        }
+        RateLimiter::hit($key, 300);
+
+        $shopifyApp->forceFill(['reviews_sync_started_at' => now()])->save();
+
+        $pages = (int) config('scraping.defaults.review_pages_per_app', 3);
+        for ($p = 1; $p <= $pages; $p++) {
+            ScrapeReviewPageJob::dispatch($shopifyApp->id, $p);
+        }
+
+        return back()->with('success', "Sync started. Reviews for {$shopifyApp->name} will refresh in a few minutes.");
     }
 }
