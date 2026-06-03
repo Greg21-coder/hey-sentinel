@@ -46,7 +46,9 @@ class MyAppsController extends Controller
             )
             ->orderBy('account_followed_apps.followed_at', 'desc')
             ->get()
-            ->map(fn ($row) => (array) $row)
+            ->map(fn ($row) => array_merge((array) $row, [
+                'scraped_reviews_count' => (int) $row->scraped_reviews_count,
+            ]))
             ->values();
 
         $needsTour = $myApps->isEmpty();
