@@ -48,6 +48,9 @@ class MyAppsController extends Controller
             ->get()
             ->map(fn ($row) => array_merge((array) $row, [
                 'scraped_reviews_count' => (int) $row->scraped_reviews_count,
+                'reviews_sync_started_at' => $row->reviews_sync_started_at
+                    ? \Carbon\Carbon::parse($row->reviews_sync_started_at)->toISOString()
+                    : null,
             ]))
             ->values();
 
