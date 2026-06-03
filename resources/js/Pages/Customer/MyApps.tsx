@@ -242,7 +242,25 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding }) => {
                                                 {app.average_rating != null ? `★ ${Number(app.average_rating).toFixed(2)}` : '—'}
                                             </td>
                                             <td className="px-4 py-3 text-gray-700">
-                                                {(app.total_reviews ?? 0).toLocaleString()}
+                                                {(() => {
+                                                    const state = appSyncState(app);
+                                                    if (state === 'syncing') {
+                                                        return (
+                                                            <div className="flex flex-col">
+                                                                <Badge color="warning">Syncing...</Badge>
+                                                                <span className="mt-1 text-xs text-gray-500">
+                                                                    ~{(app.total_reviews ?? 0).toLocaleString()} expected
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    if (state === 'failed') {
+                                                        return (
+                                                            <Badge color="danger">Couldn't sync — click Sync to retry</Badge>
+                                                        );
+                                                    }
+                                                    return (app.scraped_reviews_count ?? 0).toLocaleString();
+                                                })()}
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 <Button
