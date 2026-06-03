@@ -35,8 +35,15 @@ class MyAppsController extends Controller
                 'shopify_apps.avatar_url',
                 'shopify_apps.average_rating',
                 'shopify_apps.total_reviews',
+                'shopify_apps.reviews_sync_started_at',
                 'account_followed_apps.followed_at',
             ])
+            ->selectSub(
+                DB::table('store_reviews')
+                    ->whereColumn('store_reviews.shopify_app_id', 'shopify_apps.id')
+                    ->selectRaw('COUNT(*)'),
+                'scraped_reviews_count'
+            )
             ->orderBy('account_followed_apps.followed_at', 'desc')
             ->get()
             ->map(fn ($row) => (array) $row)
