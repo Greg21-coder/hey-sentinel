@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('winner_reasoning')->nullable();
             $table->json('per_metric_comments')->nullable();
             $table->string('model', 64);
-            $table->string('prompt_version', 16);
+            $table->string('prompt_version', 32);
             $table->timestamp('generated_at');
             $table->timestamps();
 
