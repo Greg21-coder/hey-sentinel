@@ -39,4 +39,20 @@ class ShopifyAppFactory extends Factory
             'last_scraped_at' => now()->subHours(fake()->numberBetween(1, 168)),
         ];
     }
+
+    public function withFeatures(int $count = 8): static
+    {
+        return $this->state(fn () => [
+            'features_json' => collect(range(1, $count))
+                ->map(fn ($i) => [
+                    'name' => "Feature {$i}",
+                    'category' => 'Integrations',
+                    'confidence' => 0.80,
+                    'source' => 'description',
+                ])
+                ->all(),
+            'features_extracted_at' => now()->subDay(),
+            'features_extraction_model' => 'llama3.1:8b',
+        ]);
+    }
 }
