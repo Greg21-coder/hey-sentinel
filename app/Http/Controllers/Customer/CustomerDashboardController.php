@@ -65,7 +65,8 @@ class CustomerDashboardController extends Controller
         $reviewVelocity = $this->buildReviewVelocity($followedIds);
 
         // --- My Apps ---
-        $myApps = $this->buildMyApps($accountId);
+        $kind = $request->input('kind', 'mine');
+        $myApps = $this->buildMyApps($accountId, $kind);
 
         // --- Change Feed ---
         $changeFeed = [];
@@ -88,10 +89,11 @@ class CustomerDashboardController extends Controller
                 ->toArray();
         }
 
-        $needsTour = AccountFollowedApp::withoutGlobalScope('account')
+        $mineCount = AccountFollowedApp::withoutGlobalScope('account')
             ->where('account_id', $accountId)
             ->where('kind', FollowedAppKind::Mine->value)
-            ->doesntExist();
+            ->count();
+        $needsTour = $mineCount === 0;
 
         return Inertia::render('Customer/Dashboard', [
             'stats'              => $stats,
@@ -101,6 +103,7 @@ class CustomerDashboardController extends Controller
             'myApps'             => $myApps,
             'changeFeed'         => $changeFeed,
             'onboarding'         => ['needsTour' => $needsTour],
+            'kind'               => in_array($kind, ['mine', 'competitor'], true) ? $kind : 'all',
         ]);
     }
 
@@ -203,12 +206,12 @@ class CustomerDashboardController extends Controller
         ];
     }
 
-    private function buildMyApps(int $accountId): array
+    private function buildMyApps(int $accountId, string $kind = 'mine'): array
     {
         return DB::table('account_followed_apps')
             ->join('shopify_apps', 'shopify_apps.id', '=', 'account_followed_apps.shopify_app_id')
             ->where('account_followed_apps.account_id', $accountId)
-            ->where('account_followed_apps.kind', FollowedAppKind::Mine->value)
+            ->when(in_array($kind, ['mine', 'competitor'], true), fn ($q) => $q->where('account_followed_apps.kind', $kind))
             ->whereNull('shopify_apps.unlisted_at')
             ->select([
                 'shopify_apps.id',
