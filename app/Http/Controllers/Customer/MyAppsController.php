@@ -22,12 +22,13 @@ class MyAppsController extends Controller
     public function index(Request $request): InertiaResponse
     {
         $accountId = $request->user()->currentAccount?->id ?? 0;
+        $kind = $request->input('kind', 'all');
 
-        $myApps = DB::table('account_followed_apps')
+        $query = DB::table('account_followed_apps')
             ->join('shopify_apps', 'shopify_apps.id', '=', 'account_followed_apps.shopify_app_id')
             ->where('account_followed_apps.account_id', $accountId)
-            ->where('account_followed_apps.kind', FollowedAppKind::Mine->value)
             ->whereNull('shopify_apps.unlisted_at')
+            ->when(in_array($kind, ['mine', 'competitor'], true), fn ($q) => $q->where('account_followed_apps.kind', $kind))
             ->select([
                 'shopify_apps.id',
                 'shopify_apps.shopify_app_handle',
@@ -37,6 +38,7 @@ class MyAppsController extends Controller
                 'shopify_apps.total_reviews',
                 'shopify_apps.reviews_sync_started_at',
                 'account_followed_apps.followed_at',
+                'account_followed_apps.kind',
             ])
             ->selectSub(
                 DB::table('store_reviews')
@@ -44,8 +46,9 @@ class MyAppsController extends Controller
                     ->selectRaw('COUNT(*)'),
                 'scraped_reviews_count'
             )
-            ->orderBy('account_followed_apps.followed_at', 'desc')
-            ->get()
+            ->orderBy('account_followed_apps.followed_at', 'desc');
+
+        $myApps = $query->get()
             ->map(fn ($row) => array_merge((array) $row, [
                 'scraped_reviews_count' => (int) $row->scraped_reviews_count,
                 'reviews_sync_started_at' => $row->reviews_sync_started_at
@@ -54,11 +57,15 @@ class MyAppsController extends Controller
             ]))
             ->values();
 
-        $needsTour = $myApps->isEmpty();
+        $mineCount = AccountFollowedApp::withoutGlobalScope('account')
+            ->where('account_id', $accountId)
+            ->where('kind', FollowedAppKind::Mine->value)
+            ->count();
 
         return Inertia::render('Customer/MyApps', [
             'myApps' => $myApps,
-            'onboarding' => ['needsTour' => $needsTour],
+            'kind' => in_array($kind, ['mine', 'competitor'], true) ? $kind : 'all',
+            'onboarding' => ['needsTour' => $mineCount === 0],
         ]);
     }
 
