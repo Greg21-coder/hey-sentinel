@@ -25,6 +25,7 @@ class StoreReview extends Model
         'language_code',
         'ai_status',
         'ai_sentiment',
+        'ai_pain_points_json',
         'ai_processed_at',
         'published_at',
     ];
