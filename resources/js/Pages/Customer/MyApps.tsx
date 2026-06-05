@@ -164,7 +164,7 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding, kind }) => {
                 </div>
 
                 <div className="flex gap-4 border-b mb-4">
-                    <span className="border-b-2 border-primary pb-2 text-primary">Lista</span>
+                    <span className="border-b-2 border-primary pb-2 text-primary">List</span>
                     <Link href="/customer/my-apps/versus" className="pb-2 text-gray-500 hover:text-gray-700">Versus</Link>
                 </div>
 

@@ -8,9 +8,9 @@ interface Props {
 }
 
 const labels: Record<Kind, string> = {
-  all: 'Todos',
-  mine: 'Mías',
-  competitor: 'Competidores',
+  all: 'All',
+  mine: 'Mine',
+  competitor: 'Competitors',
 };
 
 export default function KindFilterChip({ value, partialKey }: Props) {

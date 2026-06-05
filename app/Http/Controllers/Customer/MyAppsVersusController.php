@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Customer;
 
+use App\Enums\FollowedAppKind;
 use App\Exceptions\Ai\VersusSummaryFailed;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\MyAppsVersusSummarizeRequest;
 use App\Http\Requests\Customer\MyAppsVersusShowRequest;
 use App\Jobs\Ai\ExtractAppFeaturesJob;
+use App\Models\AccountFollowedApp;
 use App\Models\ShopifyApp;
 use App\Services\Ai\VersusSummaryService;
 use App\Services\Versus\ComparisonAssemblerService;
@@ -18,10 +20,27 @@ use Inertia\Response as InertiaResponse;
 
 class MyAppsVersusController extends Controller
 {
-    public function show(MyAppsVersusShowRequest $request, ComparisonAssemblerService $assembler): InertiaResponse
+    public function show(MyAppsVersusShowRequest $request, ComparisonAssemblerService $assembler): InertiaResponse|RedirectResponse
     {
         $accountId = $request->user()->currentAccount->id;
-        $mine = ShopifyApp::findOrFail($request->mineId());
+        $mineId = $request->mineId();
+
+        if ($mineId === null) {
+            $firstMineId = AccountFollowedApp::withoutGlobalScope('account')
+                ->where('account_id', $accountId)
+                ->where('kind', FollowedAppKind::Mine->value)
+                ->orderBy('followed_at')
+                ->value('shopify_app_id');
+
+            if ($firstMineId === null) {
+                return redirect('/customer/my-apps')
+                    ->with('error', 'Add an app to My Apps first to start comparing.');
+            }
+
+            return redirect('/customer/my-apps/versus?mine='.$firstMineId);
+        }
+
+        $mine = ShopifyApp::findOrFail($mineId);
         $competitors = ShopifyApp::whereIn('id', $request->competitorIds())->get();
 
         foreach (collect([$mine])->concat($competitors) as $app) {

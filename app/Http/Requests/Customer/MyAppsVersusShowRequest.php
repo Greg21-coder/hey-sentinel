@@ -20,7 +20,7 @@ class MyAppsVersusShowRequest extends FormRequest
 
         return [
             'mine' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists('account_followed_apps', 'shopify_app_id')
                     ->where(fn ($q) => $q->where('account_id', $accountId)
@@ -54,8 +54,10 @@ class MyAppsVersusShowRequest extends FormRequest
         return collect($this->input('competitors', []))->map(fn ($id) => (int) $id)->all();
     }
 
-    public function mineId(): int
+    public function mineId(): ?int
     {
-        return (int) $this->input('mine');
+        $val = $this->input('mine');
+
+        return $val !== null && $val !== '' ? (int) $val : null;
     }
 }
