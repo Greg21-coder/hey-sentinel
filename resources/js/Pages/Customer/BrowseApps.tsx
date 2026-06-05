@@ -7,6 +7,7 @@ import Button from '@/Components/ui/Button';
 import Modal from '@/Components/ui/Modal';
 import Input from '@/Components/ui/Input';
 import UpgradePrompt from '@/Components/ui/UpgradePrompt';
+import KindFilterChip from '@/Components/KindFilterChip';
 import DataTable, { Column, FilterConfig } from '@/Components/tables/DataTable';
 import { PageProps } from '@/types';
 import { ShopifyApp, PaginatedResponse } from '@/types/models';
@@ -17,6 +18,7 @@ interface Props extends PageProps {
     categories: { id: number; name: string }[];
     painPointOptions: { id: number; name: string }[];
     filters: Record<string, string>;
+    kind: 'all' | 'mine' | 'competitor';
 }
 
 const ratingColor = (rating: number): 'success' | 'warning' | 'danger' | 'gray' => {
@@ -32,6 +34,7 @@ const BrowseApps: React.FC<Props> = ({
     categories,
     painPointOptions,
     filters,
+    kind,
 }) => {
     const { featureGates } = usePage<PageProps>().props;
     const canExport = featureGates?.export_csv?.value === true;
@@ -221,6 +224,10 @@ const BrowseApps: React.FC<Props> = ({
                             <UpgradePrompt feature="CSV Export" />
                         )}
                     </div>
+                </div>
+
+                <div className="mb-3">
+                    <KindFilterChip value={kind} partialKey="apps" />
                 </div>
 
                 <Card>
