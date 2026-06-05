@@ -32,10 +32,28 @@ class MyAppsVersusController extends Controller
 
         $versus = $assembler->assemble($mine, $competitors, $accountId);
 
+        $mineOptions = ShopifyApp::query()
+            ->whereIn('id', function ($sub) use ($accountId) {
+                $sub->select('shopify_app_id')->from('account_followed_apps')
+                    ->where('account_id', $accountId)
+                    ->where('kind', \App\Enums\FollowedAppKind::Mine->value);
+            })
+            ->get(['id', 'name'])->all();
+
+        $competitorOptions = ShopifyApp::query()
+            ->whereIn('id', function ($sub) use ($accountId) {
+                $sub->select('shopify_app_id')->from('account_followed_apps')
+                    ->where('account_id', $accountId)
+                    ->where('kind', \App\Enums\FollowedAppKind::Competitor->value);
+            })
+            ->get(['id', 'name'])->all();
+
         return Inertia::render('Customer/MyAppsVersus', [
             'versus' => $versus,
             'mineSelection' => $mine->id,
             'competitorSelection' => $competitors->pluck('id')->all(),
+            'mineOptions' => $mineOptions,
+            'competitorOptions' => $competitorOptions,
         ]);
     }
 
