@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Enums\FollowedAppKind;
 use App\Enums\ScrapingStatus;
+use App\Events\AppFollowed;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\MyAppsStoreRequest;
 use App\Models\AccountFollowedApp;
@@ -145,6 +146,8 @@ class MyAppsController extends Controller
         if ($pivot->wasRecentlyCreated) {
             $account->recordUsage('apps_tracked');
         }
+
+        event(new AppFollowed($account, $app->fresh()));
 
         return redirect('/customer/my-apps')->with('success', "{$app->name} added to your apps.");
     }
