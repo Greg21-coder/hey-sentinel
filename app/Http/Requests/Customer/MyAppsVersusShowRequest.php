@@ -38,6 +38,17 @@ class MyAppsVersusShowRequest extends FormRequest
         ];
     }
 
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator): void
+    {
+        $errors = $validator->errors()->toArray();
+        $isCountError = isset($errors['competitors']) && collect($errors['competitors'])
+            ->contains(fn ($msg) => str_contains(mb_strtolower($msg), 'max') || str_contains($msg, '3 items') || str_contains($msg, 'more than 3'));
+        $status = $isCountError ? 422 : 403;
+        throw new \Illuminate\Http\Exceptions\HttpResponseException(
+            response()->json(['errors' => $errors], $status)
+        );
+    }
+
     public function competitorIds(): array
     {
         return collect($this->input('competitors', []))->map(fn ($id) => (int) $id)->all();
