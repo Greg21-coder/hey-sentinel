@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Customer;
 
-use App\Enums\FollowedAppKind;
 use App\Http\Controllers\Controller;
 use App\Models\AccountFollowedApp;
 use App\Models\ShopifyApp;
@@ -18,6 +17,8 @@ class CustomerAppController extends Controller
     public function index(Request $request): Response
     {
         $accountId = $request->user()->currentAccount?->id ?? 0;
+
+        $kind = $request->input('kind');
 
         $filters = [
             'category_id' => $request->integer('category_id') ?: null,
@@ -35,11 +36,13 @@ class CustomerAppController extends Controller
                 $inner->where('name', 'LIKE', "%{$filters['keyword']}%")
                       ->orWhere('description', 'LIKE', "%{$filters['keyword']}%");
             }))
-            ->whereNotIn('id', function ($sub) use ($accountId) {
-                $sub->select('shopify_app_id')
-                    ->from('account_followed_apps')
-                    ->where('account_id', $accountId)
-                    ->where('kind', FollowedAppKind::Mine->value);
+            ->when(in_array($kind, ['mine', 'competitor'], true), function ($q) use ($accountId, $kind) {
+                $q->whereIn('id', function ($sub) use ($accountId, $kind) {
+                    $sub->select('shopify_app_id')
+                        ->from('account_followed_apps')
+                        ->where('account_id', $accountId)
+                        ->where('kind', $kind);
+                });
             })
             ->orderByDesc('total_reviews');
 
@@ -60,6 +63,7 @@ class CustomerAppController extends Controller
             'categories'       => $categories,
             'painPointOptions' => $painPointOptions,
             'filters'          => $filters,
+            'kind'             => $kind ?? 'all',
         ]);
     }
 
