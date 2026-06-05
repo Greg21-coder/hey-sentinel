@@ -38,6 +38,9 @@ class ShopifyApp extends Model
         'ai_summary',
         'ai_summary_at',
         'ai_summary_model',
+        'features_json',
+        'features_extracted_at',
+        'features_extraction_model',
         'reviews_sync_started_at',
         'unlisted_at',
     ];
@@ -55,6 +58,8 @@ class ShopifyApp extends Model
             'last_scraped_at' => 'datetime',
             'ai_processed_at' => 'datetime',
             'ai_summary_at' => 'datetime',
+            'features_json' => 'array',
+            'features_extracted_at' => 'datetime',
             'reviews_sync_started_at' => 'datetime',
             'unlisted_at' => 'datetime',
         ];
