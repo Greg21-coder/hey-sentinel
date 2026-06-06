@@ -85,7 +85,7 @@ class MyAppsVersusController extends Controller
         $key = "versus-summary:account:{$accountId}";
 
         if (! RateLimiter::attempt($key, 1, fn () => null, 30)) {
-            abort(429, 'Espera 30 segundos antes de regenerar.');
+            abort(429, 'Wait 30 seconds before regenerating.');
         }
 
         $mine = ShopifyApp::findOrFail($request->mineId());
@@ -101,7 +101,7 @@ class MyAppsVersusController extends Controller
                 'competitor_ids' => $competitors->pluck('id')->all(),
                 'message' => $e->getMessage(),
             ]);
-            abort(503, 'No pudimos generar el análisis. Intenta de nuevo en un momento.');
+            abort(503, "Couldn't generate the analysis. Please try again shortly.");
         }
 
         return redirect()->to(url()->previous() ?: '/customer/my-apps/versus?mine='.$mine->id.'&'.http_build_query(['competitors' => $competitors->pluck('id')->all()]));

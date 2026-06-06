@@ -73,7 +73,7 @@ export default function VersusGrid({ columns, rows }: Props) {
                         <BarChart data={[{ name: 'rating', value: v }]} layout="vertical">
                           <XAxis type="number" domain={[0, 5]} hide />
                           <YAxis type="category" dataKey="name" hide />
-                          <Bar dataKey="value" fill="var(--color-primary, #4f46e5)" />
+                          <Bar dataKey="value" fill="var(--color-primary, #008060)" />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>

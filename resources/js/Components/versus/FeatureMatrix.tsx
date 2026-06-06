@@ -11,7 +11,7 @@ interface Props {
 
 export default function FeatureMatrix({ matrix, columnLabels, pendingFlags }: Props) {
   if (matrix.length === 0) {
-    return <p className="text-sm text-gray-500">Sin features extraídas — la app necesita más reseñas (mínimo 3).</p>;
+    return <p className="text-sm text-gray-500">No features extracted yet — this app needs more reviews (minimum 3).</p>;
   }
 
   return (

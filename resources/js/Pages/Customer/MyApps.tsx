@@ -174,7 +174,7 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding, kind }) => {
                         <button onClick={openAddDialog} className="rounded bg-primary text-white px-3 py-1.5 text-sm">Add app</button>
                     )}
                     {kind === 'competitor' && (
-                        <Link href="/customer/apps" className="rounded border border-primary text-primary px-3 py-1.5 text-sm">Sigue un competidor</Link>
+                        <Link href="/customer/apps" className="rounded border border-primary text-primary px-3 py-1.5 text-sm">Follow a competitor</Link>
                     )}
                 </div>
 

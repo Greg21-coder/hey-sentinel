@@ -11,7 +11,7 @@ export default {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
             },
             colors: {
-                primary: '#4f46e5',
+                primary: '#008060',
                 shopify: {
                     50: '#f1f8f5',
                     100: '#d4edda',

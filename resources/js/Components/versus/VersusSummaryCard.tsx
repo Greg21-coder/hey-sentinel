@@ -38,13 +38,13 @@ export default function VersusSummaryCard({ cached, mineId, competitorIds, winne
   if (!cached) {
     return (
       <div className="rounded-lg border p-4 text-center">
-        <p className="text-gray-600 mb-3">Aún no hay análisis para esta combinación.</p>
+        <p className="text-gray-600 mb-3">No analysis yet for this combination.</p>
         <button
           disabled={submitting}
           onClick={regenerate}
           className="rounded bg-primary text-white px-4 py-2 disabled:opacity-50"
         >
-          {submitting ? 'Analizando con AI...' : 'Generar análisis AI'}
+          {submitting ? 'Analyzing with AI...' : 'Generate AI analysis'}
         </button>
       </div>
     );
@@ -55,7 +55,7 @@ export default function VersusSummaryCard({ cached, mineId, competitorIds, winne
       <div className="flex items-start justify-between gap-3">
         <div>
           {winnerAppName && (
-            <p className="text-sm text-gray-500">Ganador: <span className="font-medium text-gray-900">{winnerAppName}</span></p>
+            <p className="text-sm text-gray-500">Winner: <span className="font-medium text-gray-900">{winnerAppName}</span></p>
           )}
           <p className="mt-1">{cached.winner_reasoning || cached.summary}</p>
         </div>
@@ -64,14 +64,14 @@ export default function VersusSummaryCard({ cached, mineId, competitorIds, winne
           onClick={regenerate}
           className="rounded border px-3 py-1 text-sm disabled:opacity-50"
         >
-          {submitting ? 'Regenerando...' : 'Regenerar'}
+          {submitting ? 'Regenerating...' : 'Regenerate'}
         </button>
       </div>
 
       {cached.per_metric_comments && Object.keys(cached.per_metric_comments).length > 0 && (
         <div className="mt-3">
           <button onClick={() => setExpanded(!expanded)} className="text-sm text-primary">
-            {expanded ? 'Ocultar' : 'Ver'} comentarios por métrica
+            {expanded ? 'Hide' : 'Show'} per-metric comments
           </button>
           {expanded && (
             <ul className="mt-2 list-disc pl-5 text-sm text-gray-700">
@@ -84,7 +84,7 @@ export default function VersusSummaryCard({ cached, mineId, competitorIds, winne
       )}
 
       <p className="mt-3 text-xs text-gray-500">
-        Generado {new Date(cached.generated_at).toLocaleString()} · modelo {cached.model}
+        Generated {new Date(cached.generated_at).toLocaleString()} · model {cached.model}
       </p>
     </div>
   );

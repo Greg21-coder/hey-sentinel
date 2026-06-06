@@ -43,8 +43,8 @@ export default function MyAppsVersus({ versus, mineSelection, competitorSelectio
 
       {versus.columns.length === 1 ? (
         <div className="rounded-lg border border-dashed p-8 text-center">
-          <p className="text-gray-600">Elige uno o más competidores para empezar la comparación.</p>
-          <a href="/customer/apps?kind=competitor" className="text-primary mt-2 inline-block">Buscar competidores</a>
+          <p className="text-gray-600">Pick one or more competitors to start comparing.</p>
+          <a href="/customer/apps?kind=competitor" className="text-primary mt-2 inline-block">Browse competitors</a>
         </div>
       ) : (
         <>
