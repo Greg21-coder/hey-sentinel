@@ -6,6 +6,7 @@ import Badge from '@/Components/ui/Badge';
 import SentimentTimeline from '@/Components/charts/SentimentTimeline';
 import PainPointsRadar from '@/Components/charts/PainPointsRadar';
 import ReviewVelocity from '@/Components/charts/ReviewVelocity';
+import KindFilterChip from '@/Components/KindFilterChip';
 import { PageProps } from '@/types';
 
 interface MyApp {
@@ -14,6 +15,7 @@ interface MyApp {
     average_rating: string;
     total_reviews: number;
     ai_summary?: string;
+    kind: 'mine' | 'competitor';
     pivot_kind: string;
     pivot_followed_at: string;
 }
@@ -41,6 +43,7 @@ interface Props extends PageProps {
         counts: number[];
     };
     myApps: MyApp[];
+    kind: 'all' | 'mine' | 'competitor';
     changeFeed: {
         id: number;
         app_name: string;
@@ -82,6 +85,7 @@ const Dashboard: React.FC<Props> = ({
     painPointsRadar,
     reviewVelocity,
     myApps,
+    kind,
     changeFeed,
     onboarding,
 }) => {
@@ -171,6 +175,9 @@ const Dashboard: React.FC<Props> = ({
 
                 {/* My Apps table */}
                 <Card title="My Apps">
+                    <div className="mb-3">
+                        <KindFilterChip value={kind} partialKey="myApps" />
+                    </div>
                     <div className="overflow-x-auto -mx-6 -mb-5">
                         <table className="min-w-full divide-y divide-gray-100 text-sm">
                             <thead className="bg-gray-50">
@@ -218,6 +225,9 @@ const Dashboard: React.FC<Props> = ({
                                                 >
                                                     {app.name}
                                                 </a>
+                                                {app.kind === 'mine'
+                                                    ? <span className="ml-1.5 rounded bg-green-100 text-green-800 px-1.5 py-0.5 text-[10px]">Mine</span>
+                                                    : <span className="ml-1.5 rounded bg-gray-100 text-gray-800 px-1.5 py-0.5 text-[10px]">Competitor</span>}
                                             </td>
                                             <td className="px-4 py-3 text-gray-700">
                                                 {app.average_rating != null ? `★ ${Number(app.average_rating).toFixed(2)}` : '—'}

@@ -26,13 +26,21 @@ class AccountFollowedAppFactory extends Factory
         ];
     }
 
-    public function mine(): static
+    public function mine(Account $account): static
     {
-        return $this->state(fn () => ['kind' => FollowedAppKind::Mine->value]);
+        return $this->state(fn () => [
+            'account_id' => $account->id,
+            'kind' => FollowedAppKind::Mine->value,
+            'followed_at' => now(),
+        ]);
     }
 
-    public function competitor(): static
+    public function competitor(Account $account): static
     {
-        return $this->state(fn () => ['kind' => FollowedAppKind::Competitor->value]);
+        return $this->state(fn () => [
+            'account_id' => $account->id,
+            'kind' => FollowedAppKind::Competitor->value,
+            'followed_at' => now(),
+        ]);
     }
 }

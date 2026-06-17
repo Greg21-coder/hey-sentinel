@@ -19,6 +19,7 @@ use App\Http\Controllers\Customer\MyAppsController;
 use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\FollowAppController;
 use App\Http\Controllers\Customer\SavedSearchController;
+use App\Http\Controllers\Customer\MyAppsVersusController;
 use App\Http\Controllers\Customer\SettingsController;
 use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,8 @@ Route::middleware(['auth'])->prefix('customer')->name('customer.')->group(functi
     Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
     Route::post('/notifications/mark-read', [NotificationController::class, 'markAllRead'])->name('notifications.markRead');
     Route::get('/my-apps', [MyAppsController::class, 'index'])->name('my-apps.index');
+    Route::get('/my-apps/versus', [MyAppsVersusController::class, 'show'])->name('my-apps.versus');
+    Route::post('/my-apps/versus/summary', [MyAppsVersusController::class, 'summarize'])->name('my-apps.versus.summarize');
     Route::get('/my-apps/search', [MyAppsController::class, 'search'])->name('my-apps.search');
     Route::post('/my-apps', [MyAppsController::class, 'store'])
         ->middleware('throttle:5,1')

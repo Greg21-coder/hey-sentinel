@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Enums\FollowedAppKind;
+use App\Events\AppFollowed;
 use App\Http\Controllers\Controller;
 use App\Jobs\Scraping\ScrapeReviewPageJob;
 use App\Models\AccountFollowedApp;
@@ -42,6 +43,8 @@ class FollowAppController extends Controller
         if ($pivot->wasRecentlyCreated) {
             $account->recordUsage('apps_tracked');
         }
+
+        event(new AppFollowed($account, $shopifyApp->fresh()));
 
         return back()->with('success', "Now following {$shopifyApp->name}.");
     }

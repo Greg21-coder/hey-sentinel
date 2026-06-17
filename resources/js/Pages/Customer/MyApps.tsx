@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import Card from '@/Components/ui/Card';
 import Button from '@/Components/ui/Button';
 import Input from '@/Components/ui/Input';
 import Badge from '@/Components/ui/Badge';
+import KindFilterChip from '@/Components/KindFilterChip';
 import { startMyAppsTour } from '@/Lib/onboardingTour';
 import { PageProps } from '@/types';
 
@@ -18,6 +19,7 @@ interface MyApp {
     scraped_reviews_count: number;
     reviews_sync_started_at: string | null;
     followed_at: string;
+    kind: 'mine' | 'competitor';
 }
 
 type SyncState = 'syncing' | 'failed' | 'healthy';
@@ -46,16 +48,23 @@ interface SearchResult {
 interface Props extends PageProps {
     myApps: MyApp[];
     onboarding: { needsTour: boolean };
+    kind: 'all' | 'mine' | 'competitor';
 }
 
 const SHOPIFY_URL_RE = /^https:\/\/apps\.shopify\.com\/[a-z0-9][a-z0-9\-]*\/?$/;
 
-const MyApps: React.FC<Props> = ({ myApps, onboarding }) => {
+const MyApps: React.FC<Props> = ({ myApps, onboarding, kind }) => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
     const [searching, setSearching] = useState(false);
     const [submitting, setSubmitting] = useState<string | null>(null);
     const debounceRef = useRef<number | null>(null);
+    const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+    const openAddDialog = () => {
+        searchInputRef.current?.focus();
+        searchInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
 
     useEffect(() => {
         if (!onboarding.needsTour) return;
@@ -154,9 +163,25 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding }) => {
                     )}
                 </div>
 
+                <div className="flex gap-4 border-b mb-4">
+                    <span className="border-b-2 border-primary pb-2 text-primary">List</span>
+                    <Link href="/customer/my-apps/versus" className="pb-2 text-gray-500 hover:text-gray-700">Versus</Link>
+                </div>
+
+                <div className="flex items-center justify-between mb-3">
+                    <KindFilterChip value={kind} partialKey="myApps" />
+                    {kind !== 'competitor' && (
+                        <button onClick={openAddDialog} className="rounded bg-primary text-white px-3 py-1.5 text-sm">Add app</button>
+                    )}
+                    {kind === 'competitor' && (
+                        <Link href="/customer/apps" className="rounded border border-primary text-primary px-3 py-1.5 text-sm">Follow a competitor</Link>
+                    )}
+                </div>
+
                 <Card title="Find your app">
                     <div className="space-y-3" data-tour="search">
                         <Input
+                            ref={searchInputRef}
                             label="Search by name or paste a Shopify URL"
                             value={query}
                             onChange={e => setQuery(e.target.value)}
@@ -234,13 +259,14 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding }) => {
                                     <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">App</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Rating</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Reviews</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Ownership</th>
                                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 bg-white">
                                 {myApps.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">
+                                        <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
                                             No apps yet. Use the search above to add your first.
                                         </td>
                                     </tr>
@@ -282,6 +308,11 @@ const MyApps: React.FC<Props> = ({ myApps, onboarding }) => {
                                                     }
                                                     return (app.scraped_reviews_count ?? 0).toLocaleString();
                                                 })()}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                {app.kind === 'mine'
+                                                    ? <span className="rounded bg-green-100 text-green-800 px-2 py-0.5 text-xs">Mine</span>
+                                                    : <span className="rounded bg-gray-100 text-gray-800 px-2 py-0.5 text-xs">Competitor</span>}
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex justify-end gap-2">
